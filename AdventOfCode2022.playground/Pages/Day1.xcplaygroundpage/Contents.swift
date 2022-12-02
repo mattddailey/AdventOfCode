@@ -2,13 +2,10 @@ import Foundation
 
 // MARK: - Shared
 
-func caloriesList() -> [Int] {
-    let input = getInputData(from: "Day1Input")
-    let calories = input.components(separatedBy: .newlines)
-
+func caloriesPerElf(_ caloriesArray: [String]) -> [Int] {
     var calorieCount = 0
     var caloriesList: [Int] = []
-    for calorie in calories {
+    for calorie in caloriesArray {
         if !calorie.isEmpty {
             calorieCount += Int(calorie)!
         } else {
@@ -23,7 +20,10 @@ func caloriesList() -> [Int] {
 // MARK: - Part 1
 
 func part1() -> Int {
-    let maxCalories = caloriesList()
+    let helper = InputHelper(fileName: "Day1Input")
+    let caloriesArray = helper.inputAsArraySeparatedBy(.newlines)
+    
+    let maxCalories = caloriesPerElf(caloriesArray)
         .max()!
     
     return maxCalories
@@ -32,7 +32,10 @@ func part1() -> Int {
 // MARK: - Part 2
 
 func part2() -> Int {
-    let maxThreeCalories = caloriesList()
+    let helper = InputHelper(fileName: "Day1Input")
+    let caloriesArray = helper.inputAsArraySeparatedBy(.newlines)
+    
+    let maxThreeCalories = caloriesPerElf(caloriesArray)
         .sorted(by: >)
         .prefix(3)
         .reduce(0, +)

@@ -1,8 +1,16 @@
 import Foundation
 
-public func getInputData(from fileName: String) -> String {
-    let filePath = Bundle.main.path(forResource: fileName, ofType: "txt")!
-    let file = try! String(contentsOfFile: filePath)
-
-    return file
+public struct InputHelper {
+    public let inputAsString: String
+    
+    public init(fileName: String) {
+        let filePath = Bundle.main.path(forResource: fileName, ofType: "txt")!
+        let stringContents = try! String(contentsOfFile: filePath)
+        self.inputAsString = stringContents
+    }
+    
+    public func inputAsArraySeparatedBy(_ separator: CharacterSet) -> [String] {
+        return inputAsString.components(separatedBy: separator)
+    }
+    
 }
