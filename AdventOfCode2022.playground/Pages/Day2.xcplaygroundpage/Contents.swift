@@ -1,83 +1,69 @@
 import Foundation
 import Darwin
 
-enum Shape: String {
-    case rock = "A"
-    case paper = "B"
-    case scissors = "C"
+enum Choice {
+    case rock
+    case paper
+    case scissor
     
-    // For part 1
-    init(myTurn: String) {
-        switch myTurn {
-        case ("X"):
-            self = .rock
-        case ("Y"):
-            self = .paper
-        default:
-            self = .scissors
-        }
-    }
-
-    // returns bool corresponding to whether or not RHS wins
-    static func <(lhs: Shape, rhs: Shape) -> Bool?  {
-        switch (lhs, rhs) {
-        case (.rock, .paper):
-            return true
-        case (.rock, .scissors):
-            return false
-        case (.paper, .rock):
-            return false
-        case (.paper, .scissors):
-            return true
-        case (.scissors, .rock):
-            return true
-        case (.scissors, .paper):
-            return false
-        default:
-            return nil
-        }
-    }
-        
     var score: Int {
         switch self {
         case .rock:
             return 1
         case .paper:
             return 2
-        case .scissors:
+        case .scissor:
             return 3
         }
     }
-    
-    var shapeThatWins: Shape {
-        switch self {
-        case .rock:
-            return .paper
-        case .paper:
-            return .scissors
-        case .scissors:
-            return .rock
-        }
-    }
-    
-    var shapeThatLoses: Shape {
-        switch self {
-        case .rock:
-            return .scissors
-        case .paper:
-            return .rock
-        case .scissors:
-            return .paper
-        }
-    }
-    
 }
 
-enum DesiredOutcome: String {
-    case loss = "X"
-    case draw = "Y"
-    case win = "Z"
+enum Outcome {
+    case win
+    case loss
+    case draw
+    
+    var score: Int {
+        switch self {
+        case .win:
+            return 6
+        case .loss:
+            return 0
+        case .draw:
+            return 3
+        }
+    }
 }
+
+let part1Scores: [String : Int] = [
+    // LHS: input ; RHS: score of our play + score of outcome
+    "A X" : Choice.rock.score + Outcome.draw.score,
+    "A Y" : Choice.paper.score + Outcome.win.score,
+    "A Z" : Choice.scissor.score + Outcome.loss.score,
+    "B X" : Choice.rock.score + Outcome.loss.score,
+    "B Y" : Choice.paper.score + Outcome.draw.score,
+    "B Z" : Choice.scissor.score + Outcome.win.score,
+    "C X" : Choice.rock.score + Outcome.win.score,
+    "C Y" : Choice.paper.score + Outcome.loss.score,
+    "C Z" : Choice.scissor.score + Outcome.draw.score,
+]
+
+// X - lose
+// Y - Draw
+// Z - Win
+
+let part2Scores: [String : Int] = [
+    // LHS: input ; RHS: score of our play + score of outcome
+    "A X" : Choice.scissor.score + Outcome.loss.score,
+    "A Y" : Choice.rock.score + Outcome.draw.score,
+    "A Z" : Choice.paper.score + Outcome.win.score,
+    "B X" : Choice.rock.score + Outcome.loss.score,
+    "B Y" : Choice.paper.score + Outcome.draw.score,
+    "B Z" : Choice.scissor.score + Outcome.win.score,
+    "C X" : Choice.paper.score + Outcome.loss.score,
+    "C Y" : Choice.scissor.score + Outcome.draw.score,
+    "C Z" : Choice.rock.score + Outcome.win.score,
+]
 
 
 // MARK: - Part 1
@@ -89,17 +75,7 @@ func part1() -> Int {
     var score = 0
     for round in rounds {
         if !round.isEmpty {
-            let splitRound = round.split(separator: " ")
-            let opponentsTurn = Shape(rawValue: String(splitRound[0]))!
-            let myTurn = Shape(myTurn: String(splitRound[1]))
-            
-            if let result = opponentsTurn < myTurn {
-                // Win / Lose
-                score += result ? 6 + myTurn.score : myTurn.score
-            } else {
-                // Tie
-                score += myTurn.score + 3
-            }
+            score += part1Scores[round]!
         }
     }
     
@@ -115,20 +91,9 @@ func part2() -> Int {
     var score = 0
     for round in rounds {
         if !round.isEmpty {
-            let splitRound = round.split(separator: " ")
-            let opponentsTurn = Shape(rawValue: String(splitRound[0]))!
-            let desiredOutcome = DesiredOutcome(rawValue: String(splitRound[1]))
-            
-            if desiredOutcome == .draw {
-                score += opponentsTurn.score + 3
-            } else if desiredOutcome == .win {
-                score += opponentsTurn.shapeThatWins.score + 6
-            } else {
-                score += opponentsTurn.shapeThatLoses.score
-            }
+            score += part2Scores[round]!
         }
     }
-    
     
     return score
 }
