@@ -48,10 +48,6 @@ let part1Scores: [String : Int] = [
     "C Z" : Choice.scissor.score + Outcome.draw.score,
 ]
 
-// X - lose
-// Y - Draw
-// Z - Win
-
 let part2Scores: [String : Int] = [
     // LHS: input ; RHS: score of our play + score of outcome
     "A X" : Choice.scissor.score + Outcome.loss.score,
