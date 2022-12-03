@@ -20,7 +20,7 @@ func caloriesPerElf(_ caloriesArray: [String]) -> [Int] {
 // MARK: - Part 1
 
 func part1() -> Int {
-    let helper = InputHelper(fileName: "Day1Input")
+    let helper = InputHelper(fileName: "dec01Input")
     let caloriesArray = helper.inputAsArraySeparatedBy(.newlines)
     
     let maxCalories = caloriesPerElf(caloriesArray)
@@ -32,7 +32,7 @@ func part1() -> Int {
 // MARK: - Part 2
 
 func part2() -> Int {
-    let helper = InputHelper(fileName: "Day1Input")
+    let helper = InputHelper(fileName: "dec01Input")
     let caloriesArray = helper.inputAsArraySeparatedBy(.newlines)
     
     let maxThreeCalories = caloriesPerElf(caloriesArray)

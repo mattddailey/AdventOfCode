@@ -65,7 +65,7 @@ let part2Scores: [String : Int] = [
 // MARK: - Part 1
 
 func part1() -> Int {
-    let helper = InputHelper(fileName: "Day2Input")
+    let helper = InputHelper(fileName: "dec01Input")
     let rounds = helper.inputAsArraySeparatedBy(.newlines)
     
     var score = 0
@@ -81,7 +81,7 @@ func part1() -> Int {
 // MARK: - Part 2
 
 func part2() -> Int {
-    let helper = InputHelper(fileName: "Day2Input")
+    let helper = InputHelper(fileName: "dec02Input")
     let rounds = helper.inputAsArraySeparatedBy(.newlines)
     
     var score = 0
