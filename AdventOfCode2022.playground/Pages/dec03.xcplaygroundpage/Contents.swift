@@ -28,14 +28,14 @@ func part1() -> Int {
 
 func part2() -> Int {
     let helper = InputHelper(fileName: "dec03Input")
-    let Elves = helper.inputAsArraySeparatedBy(.newlines)
+    let elves = helper.inputAsArraySeparatedBy(.newlines)
     
     var offset = 0
     var prioritySum = 0
-    while offset < Elves.count - 3 {
-        let elfOne = Elves[offset + 0]
-        let elfTwo = Elves[offset + 1]
-        let elfThree = Elves[offset + 2]
+    while offset < elves.count - 3 {
+        let elfOne = elves[offset + 0]
+        let elfTwo = elves[offset + 1]
+        let elfThree = elves[offset + 2]
         
         let sharedElement = elfOne.first(where: { element in
             elfTwo.contains(where: { $0 == element }) &&
