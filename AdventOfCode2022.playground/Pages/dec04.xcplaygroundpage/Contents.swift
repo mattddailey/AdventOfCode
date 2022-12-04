@@ -19,16 +19,20 @@ struct SectionAssignment {
     }
 }
 
-func isFullyContained(_ sets: [Set<Int>]) -> Bool {
+func containsOverlap(_ sets: [Set<Int>]) -> Bool {
+    return !sets[0].isDisjoint(with: sets[1])
+}
+
+func isFullyContained(_ sets: [Set<Int>]) -> Bool? {
     if (sets[0].intersection(sets[1]) == sets[0]) ||
         (sets[0].intersection(sets[1]) == sets[1]) {
         return true
     } else {
-        return false
+        return nil
     }
 }
 
-func separateElves(_ pair: String) -> [Set<Int>]? {
+func convertToSets(_ pair: String) -> [Set<Int>]? {
     let elves = pair.components(separatedBy: ",")
     let firstElf = SectionAssignment(elves.first)
     let secondElf = SectionAssignment(elves.last)
@@ -46,13 +50,26 @@ func part1() -> Int {
     let helper = InputHelper(fileName: "dec04Input")
     let reconsiderCount = helper.inputAsArraySeparatedBy(.newlines)
         .filter { !$0.isEmpty }
-        .compactMap(separateElves)
-        .map(isFullyContained)
-        .filter { $0 }
+        .compactMap(convertToSets)
+        .compactMap(isFullyContained)
         .count
         
     return reconsiderCount
 }
 
+//MARK: - Part 2
+
+func part2() -> Int {
+    let helper = InputHelper(fileName: "dec04Input")
+    let overlapCount = helper.inputAsArraySeparatedBy(.newlines)
+        .filter { !$0.isEmpty }
+        .compactMap(convertToSets)
+        .map(containsOverlap)
+        .filter { $0 }
+        .count
+    
+    return overlapCount
+}
 
 print(part1())
+print(part2())
