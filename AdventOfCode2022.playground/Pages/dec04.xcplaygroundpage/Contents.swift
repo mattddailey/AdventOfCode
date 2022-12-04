@@ -24,8 +24,8 @@ func containsOverlap(_ sets: [Set<Int>]) -> Bool {
 }
 
 func isFullyContained(_ sets: [Set<Int>]) -> Bool? {
-    if (sets[0].intersection(sets[1]) == sets[0]) ||
-        (sets[0].intersection(sets[1]) == sets[1]) {
+    if (sets[0].isSubset(of: sets[1])) ||
+        (sets[1].isSubset(of: sets[0])) {
         return true
     } else {
         return nil
