@@ -14,27 +14,27 @@ struct SectionAssignment {
         self.upper = Int(upper) ?? 0
     }
     
-    var asClosedRange: ClosedRange<Int> {
-        return lower...upper
+    var asSet: Set<Int> {
+        return Set(lower...upper)
     }
 }
 
-func isFullyContained(_ ranges: [ClosedRange<Int>]) -> Bool {
-    if ranges[0].clamped(to: ranges[1]) == ranges[0] || ranges[1].clamped(to: ranges[0]) == ranges[1]   {
+func isFullyContained(_ sets: [Set<Int>]) -> Bool {
+    if (sets[0].intersection(sets[1]) == sets[0]) ||
+        (sets[0].intersection(sets[1]) == sets[1]) {
         return true
     } else {
         return false
     }
 }
 
-
-func separateElves(_ pair: String) -> [ClosedRange<Int>]? {
+func separateElves(_ pair: String) -> [Set<Int>]? {
     let elves = pair.components(separatedBy: ",")
     let firstElf = SectionAssignment(elves.first)
     let secondElf = SectionAssignment(elves.last)
     
     if let firstElf = firstElf, let secondElf = secondElf {
-        return [firstElf.asClosedRange, secondElf.asClosedRange]
+        return [firstElf.asSet, secondElf.asSet]
     } else {
         return nil
     }
