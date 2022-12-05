@@ -40,7 +40,6 @@ func buildOutputString(_ stacksDict: StacksDict) -> String {
         if let character = pair.value.first {
             result = result + String(character)
         }
-        
     }
     return result
 }
@@ -69,7 +68,7 @@ func part1() -> String {
     instructions
         .map(Instruction.init)
         .forEach { instruction in
-            for _ in 1...instruction.numberToMove {
+            for _ in 0...instruction.numberToMove - 1 {
                 if let character = stacksDict[instruction.source]?.removeFirst() {
                     stacksDict[instruction.destination]?.insert(character, at: 0)
             }
@@ -89,14 +88,10 @@ func part2() -> String {
     instructions
         .map(Instruction.init)
         .forEach { instruction in
-            var tempArray: [Character] = []
-            for _ in 1...instruction.numberToMove {
+            for index in 0...instruction.numberToMove - 1 {
                 if let character = stacksDict[instruction.source]?.removeFirst() {
-                    tempArray.append(character)
+                    stacksDict[instruction.destination]?.insert(character, at: index)
                 }
-            }
-            tempArray.reversed().forEach {
-                stacksDict[instruction.destination]?.insert($0, at: 0)
             }
         }
     
