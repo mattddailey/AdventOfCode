@@ -47,6 +47,18 @@ func parseInput(_ input: [String]) -> (StacksDict, [Instruction]) {
     return (stacksDict, instructions)
 }
 
+func moveCrate(accordingTo instruction: Instruction, moveAsGroup: Bool = false, stacksDict: StacksDict) -> StacksDict {
+    var mutableStacksDict = stacksDict
+    
+    for index in 0...instruction.numberToMove - 1 {
+        if let character = mutableStacksDict[instruction.source]?.removeFirst() {
+            mutableStacksDict[instruction.destination]?.insert(character, at: moveAsGroup ? index : 0)
+        }
+    }
+    
+    return mutableStacksDict
+}
+
 func buildOutputString(_ stacksDict: StacksDict) -> String {
     let sortedStack = stacksDict.sorted(by: { $0.0 < $1.0 })
     
@@ -67,11 +79,7 @@ func part1() -> String {
     // loop through instructions, move items accordingly
     instructions
         .forEach { instruction in
-            for _ in 0...instruction.numberToMove - 1 {
-                if let character = stacksDict[instruction.source]?.removeFirst() {
-                    stacksDict[instruction.destination]?.insert(character, at: 0)
-                }
-            }
+            stacksDict = moveCrate(accordingTo: instruction, stacksDict: stacksDict)
         }
     
     return buildOutputString(stacksDict)
@@ -86,11 +94,7 @@ func part2() -> String {
     // loop through instructions, move items accordingly
     instructions
         .forEach { instruction in
-            for index in 0...instruction.numberToMove - 1 {
-                if let character = stacksDict[instruction.source]?.removeFirst() {
-                    stacksDict[instruction.destination]?.insert(character, at: index)
-                }
-            }
+            stacksDict = moveCrate(accordingTo: instruction, moveAsGroup: true, stacksDict: stacksDict)
         }
     
     return buildOutputString(stacksDict)
