@@ -35,13 +35,13 @@ func parseInput(_ input: [String]) -> (StacksDict, [String]) {
 
 func buildOutputString(_ stacksDict: StacksDict) -> String {
     let sortedStack = stacksDict.sorted(by: { $0.0 < $1.0 })
-    var result = ""
-    for pair in sortedStack {
+    
+    return sortedStack.reduce("") { partialResult, pair in
         if let character = pair.value.first {
-            result = result + String(character)
+            return partialResult.appending(String(character))
         }
+        return partialResult
     }
-    return result
 }
 
 struct Instruction {
@@ -71,9 +71,9 @@ func part1() -> String {
             for _ in 0...instruction.numberToMove - 1 {
                 if let character = stacksDict[instruction.source]?.removeFirst() {
                     stacksDict[instruction.destination]?.insert(character, at: 0)
+                }
             }
         }
-    }
     
     return buildOutputString(stacksDict)
 }
