@@ -2,9 +2,23 @@ import Foundation
 
 typealias StacksDict = [Int: [Character]]
 
-func parseInput(_ input: [String]) -> (StacksDict, [String]) {
+struct Instruction {
+    let numberToMove: Int
+    let source: Int
+    let destination: Int
+    
+    init(string: String) {
+        let integers = string.components(separatedBy: .whitespaces)
+            .compactMap { Int($0) }
+        self.numberToMove = integers[0]
+        self.source = integers[1]
+        self.destination = integers[2]
+    }
+}
+
+func parseInput(_ input: [String]) -> (StacksDict, [Instruction]) {
     var stacksDict = StacksDict()
-    var instructions: [String] = []
+    var instructions: [Instruction] = []
     
     input
         .forEach { row in
@@ -25,8 +39,8 @@ func parseInput(_ input: [String]) -> (StacksDict, [String]) {
                     index += 4
                 }
             } else if row.contains("move") {
-                // Get instructions
-                instructions.append(row)
+                let instruction = Instruction(string: row)
+                instructions.append(instruction)
             }
         }
     
@@ -44,20 +58,6 @@ func buildOutputString(_ stacksDict: StacksDict) -> String {
     }
 }
 
-struct Instruction {
-    let numberToMove: Int
-    let source: Int
-    let destination: Int
-    
-    init(instruction: String) {
-        let integers = instruction.components(separatedBy: .whitespaces)
-            .compactMap { Int($0) }
-        self.numberToMove = integers[0]
-        self.source = integers[1]
-        self.destination = integers[2]
-    }
-}
-
 //MARK: - Part 1
 
 func part1() -> String {
@@ -66,7 +66,6 @@ func part1() -> String {
     
     // loop through instructions, move items accordingly
     instructions
-        .map(Instruction.init)
         .forEach { instruction in
             for _ in 0...instruction.numberToMove - 1 {
                 if let character = stacksDict[instruction.source]?.removeFirst() {
@@ -86,7 +85,6 @@ func part2() -> String {
     
     // loop through instructions, move items accordingly
     instructions
-        .map(Instruction.init)
         .forEach { instruction in
             for index in 0...instruction.numberToMove - 1 {
                 if let character = stacksDict[instruction.source]?.removeFirst() {
