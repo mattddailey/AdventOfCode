@@ -3,7 +3,7 @@ import Foundation
 typealias StacksDict = [Int: [Character]]
 
 func parseInput(_ input: [String]) -> (StacksDict, [String]) {
-    var stacksDict = [Int: [Character]]()
+    var stacksDict = StacksDict()
     var instructions: [String] = []
     
     input
