@@ -9,8 +9,7 @@ func locateMarker(in dataStream: String, markerSize: Int) -> Int {
         var marker = Set<Character>()
         let duplicates = slidingGroup.filter { !marker.insert($0).inserted }
         if duplicates.isEmpty {
-            // marker found
-            break
+            return index+markerSize
         }
         index += 1
     }
