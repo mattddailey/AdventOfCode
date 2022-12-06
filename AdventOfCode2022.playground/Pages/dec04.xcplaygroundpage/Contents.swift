@@ -49,7 +49,6 @@ func convertToSets(_ pair: String) -> [Set<Int>]? {
 func part1() -> Int {
     let helper = InputHelper(fileName: "dec04Input")
     let reconsiderCount = helper.inputAsArraySeparatedBy(.newlines)
-        .filter { !$0.isEmpty }
         .compactMap(convertToSets)
         .compactMap(isFullyContained)
         .count
@@ -62,7 +61,6 @@ func part1() -> Int {
 func part2() -> Int {
     let helper = InputHelper(fileName: "dec04Input")
     let overlapCount = helper.inputAsArraySeparatedBy(.newlines)
-        .filter { !$0.isEmpty }
         .compactMap(convertToSets)
         .map(containsOverlap)
         .filter { $0 }
