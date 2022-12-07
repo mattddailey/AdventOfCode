@@ -1,5 +1,8 @@
 import Foundation
 
+let ELFDEVICESPACE = 70000000
+let UPDATESIZE = 30000000
+
 struct File {
     let name: String
     let size: Int
@@ -23,23 +26,23 @@ class Directory {
         files.forEach { size += $0.size }
         return size
     }
-    
-    static var rootDir: Directory {
-        let home = Directory(name: "/")
-        let root = Directory(name: "root", subDirectories: ["/" : home])
-        home.parent = root
-        return root
-    }
 }
 
 struct ElfDevice {
     
-    var root = Directory.rootDir
+    var root: Directory = {
+        let home = Directory(name: "/")
+        let root = Directory(name: "root", subDirectories: ["/" : home])
+        home.parent = root
+        return root
+    }()
+    
     let terminalLines: [String]
-    var sizeNeeded = 0
+    var maxDirectorySizeForDelete = 100000
+    var spaceToFree = 0
     var deleteSize = 70000000
     
-    mutating func buildDirectory(_ commandIndex: Int, directory: Directory?) {
+    mutating func buildDirectory(_ commandIndex: Int = 0, directory: Directory?) {
         guard commandIndex < terminalLines.count else { return }
         
         let command = terminalLines[commandIndex]
@@ -47,34 +50,39 @@ struct ElfDevice {
         let components = command.components(separatedBy: .whitespaces)
         
         if let size = Int(components[0]) {
+            // parse file
             let file = File(name: components[1], size: size)
             directory?.files.append(file)
             buildDirectory(nextIndex, directory: directory)
         } else {
             if components[0] == "dir" {
+                // parse subdirectory
                 let subDirectory = Directory(name: components[1], parent: directory)
                 directory?.subDirectories[components[1]] = subDirectory
                 buildDirectory(nextIndex, directory: directory)
             } else {
                 if components[1] == "cd" {
+                    // going back to parent
                     if components[2] == ".." {
                         buildDirectory(nextIndex, directory: directory?.parent)
                     } else {
+                        // going into a subdirectory
                         buildDirectory(nextIndex, directory: directory?.subDirectories[components[2]])
                     }
                 } else {
+                    // ls command (pass)
                     buildDirectory(nextIndex, directory: directory)
                 }
             }
         }
     }
     
-    mutating func getSmallestSizeToDelete(_ directory: Directory?) -> Int {
-        let size = directory?.size ?? 0
-        if size >= sizeNeeded && size < deleteSize {
+    mutating func getSmallestSizeToDelete(_ directory: Directory) -> Int {
+        let size = directory.size
+        if size >= spaceToFree && size < deleteSize {
             deleteSize = size
         }
-        directory?.subDirectories.values.forEach {
+        directory.subDirectories.values.forEach {
             if getSmallestSizeToDelete($0) < deleteSize {
                 deleteSize = size
             }
@@ -82,11 +90,11 @@ struct ElfDevice {
         return deleteSize
     }
     
-    func getDeletableSize(_ directory: Directory?) -> Int {
+    func getDeletableSize(_ directory: Directory) -> Int {
         var size = 0
-        directory?.subDirectories.values.forEach {
+        directory.subDirectories.values.forEach {
             let dirSize = $0.size
-            if dirSize <= 100000 {
+            if dirSize <= maxDirectorySizeForDelete {
                 size += dirSize
             }
             size += getDeletableSize($0)
@@ -95,6 +103,7 @@ struct ElfDevice {
     }
 }
 
+//MARK: - Part 1
 
 func part1() -> Int {
     let helper = InputHelper(fileName: "dec07Input")
@@ -106,15 +115,17 @@ func part1() -> Int {
     return device.getDeletableSize(device.root)
 }
 
+//MARK: - Part 2
+
 func part2() -> Int {
     let helper = InputHelper(fileName: "dec07Input")
     let input = helper.inputAsArraySeparatedBy(.newlines)
     
     var device = ElfDevice(terminalLines: input)
-    device.buildDirectory(0, directory: device.root)
+    device.buildDirectory(directory: device.root)
+    let unusedSpace = ELFDEVICESPACE - (device.root.size)
+    device.spaceToFree = UPDATESIZE - unusedSpace
     
-    let unusedSize = 70000000 - (device.root.size)
-    device.sizeNeeded = 30000000 - unusedSize
     return device.getSmallestSizeToDelete(device.root)
 }
 
