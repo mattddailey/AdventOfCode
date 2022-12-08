@@ -1,7 +1,4 @@
-
-
 import Foundation
-import Darwin
 
 func calculateScenicScore(col: [Int], row: [Int], x: Int, y: Int, currentTree: Int) -> Int {
     let left = row[0..<x].reversed()
@@ -56,7 +53,6 @@ func part1() -> Int {
     for (index, row) in rows.enumerated() {
         for i in 0..<row.count {
             if index == 0 || index == rows.count - 1 || i == 0 || i == row.count - 1 {
-
                 count += 1
             }
             else {
