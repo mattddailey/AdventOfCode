@@ -60,15 +60,15 @@ func part1() -> Int {
     let rows = helper.inputAsArraySeparatedBy(.newlines)
         .map { Array($0).compactMap { Int(String($0)) } }
     let cols = transpose(rows)
-    
-    var count = 0
-    for (y, row) in rows.enumerated() {
-        for x in 0..<row.count {
-            if treeIsVisible(col: cols[x], row: row, x: x, y: y, currentTree: row[x]) {
-                count += 1
-            }
+
+    let count = rows.enumerated()
+        .map { y, row in
+            row.indices
+                .map { treeIsVisible(col: cols[$0], row: row, x: $0, y: y, currentTree: row[$0]) }
+                .filter { $0 }
+                .count
         }
-    }
+        .reduce(0, +)
     
     return count
 }
@@ -81,16 +81,16 @@ func part2() -> Int {
         .map { Array($0).compactMap { Int(String($0)) } }
     let cols = transpose(rows)
     
-    var scenicScore = 0
-    for (index, row) in rows.enumerated() {
-        for i in 0..<row.count {
-            let currentScenicScore = calculateScenicScore(col: cols[i], row: row, x: i, y: index, currentTree: row[i])
-            if currentScenicScore > scenicScore {
-                scenicScore = currentScenicScore
-            }
+    let scenicScore = rows.enumerated()
+        .map { y, row in
+            row.indices
+                .map { calculateScenicScore(col: cols[$0], row: row, x: $0, y: y, currentTree: row[$0]) }
+                .max()
         }
-    }
-    return scenicScore
+        .compactMap { $0 }
+        .max()
+    
+    return scenicScore ?? 0
 }
 
 print(part1())
