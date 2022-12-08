@@ -15,6 +15,15 @@ public struct InputHelper {
     
 }
 
+public func transpose(_ input: [[Int]]) -> [[Int]] {
+    guard !input.isEmpty else { return input }
+    var result = [[Int]]()
+    for index in 0..<input.first!.count {
+        result.append(input.map{$0[index]})
+    }
+    return result
+
+}
 
 public extension StringProtocol {
     subscript(_ offset: Int)                     -> Element     { self[index(startIndex, offsetBy: offset)] }
