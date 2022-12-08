@@ -41,31 +41,31 @@ func calculateScenicScore(col: [Int], row: [Int], x: Int, y: Int, currentTree: I
     return leftScenicScore * rightScenicScore * aboveScenicScore * belowScenicScore
 }
 
+func treeIsVisible(col: [Int], row: [Int], x: Int, y: Int, currentTree: Int) -> Bool {
+    // check if on the edge
+    if y == 0 || y == col.count - 1 || x == 0 || x == row.count - 1 {
+        return true
+    }
+    
+    return row[x] > row[0..<x].max() ?? .max ||
+    row[x] > row[x+1..<row.count].max() ?? .max ||
+    row[x] > col[0..<y].max() ?? .max ||
+    row[x] > col[y+1..<col.count].max() ?? .max
+}
+
 //MARK: - Part 1
 
 func part1() -> Int {
     let helper = InputHelper(fileName: "dec08Input")
     let rows = helper.inputAsArraySeparatedBy(.newlines)
-        .map { Array($0).compactMap { char in Int(String(char)) } }
+        .map { Array($0).compactMap { Int(String($0)) } }
     let cols = transpose(rows)
     
     var count = 0
-    for (index, row) in rows.enumerated() {
-        for i in 0..<row.count {
-            if index == 0 || index == rows.count - 1 || i == 0 || i == row.count - 1 {
+    for (y, row) in rows.enumerated() {
+        for x in 0..<row.count {
+            if treeIsVisible(col: cols[x], row: row, x: x, y: y, currentTree: row[x]) {
                 count += 1
-            }
-            else {
-                guard let leftMax = row[0..<i].max(),
-                      let rightMax = row[i+1..<row.count].max(),
-                      let aboveMax = cols[i][0..<index].max(),
-                      let belowMax = cols[i][index+1..<cols.count].max() else { continue }
-                if row[i] > leftMax ||
-                    row[i] > rightMax ||
-                    row[i] > belowMax ||
-                    row[i] > aboveMax {
-                    count += 1
-                }
             }
         }
     }
@@ -78,7 +78,7 @@ func part1() -> Int {
 func part2() -> Int {
     let helper = InputHelper(fileName: "dec08Input")
     let rows = helper.inputAsArraySeparatedBy(.newlines)
-        .map { Array($0).compactMap { char in Int(String(char)) } }
+        .map { Array($0).compactMap { Int(String($0)) } }
     let cols = transpose(rows)
     
     var scenicScore = 0
