@@ -1,44 +1,17 @@
 import Foundation
 
 func calculateScenicScore(col: [Int], row: [Int], x: Int, y: Int, currentTree: Int) -> Int {
-    let left = row[0..<x].reversed()
-    let right = row[x+1..<row.count]
-    let above = col[0..<y].reversed()
-    let below = col[y+1..<col.count]
+    let left = Array(row[0..<x].reversed())
+    let right = Array(row[x+1..<row.count])
+    let above = Array(col[0..<y].reversed())
+    let below = Array(col[y+1..<col.count])
 
-    var leftScenicScore = 0
-    for tree in left {
-        leftScenicScore += 1
-        if tree >= currentTree {
-            break
-        }
-    }
-    
-    var rightScenicScore = 0
-    for tree in right {
-        rightScenicScore += 1
-        if tree >= currentTree {
-            break
-        }
-    }
-    
-    var aboveScenicScore = 0
-    for tree in above {
-        aboveScenicScore += 1
-        if tree >= currentTree {
-            break
-        }
-    }
-    
-    var belowScenicScore = 0
-    for tree in below {
-        belowScenicScore += 1
-        if tree >= currentTree {
-            break
-        }
-    }
-    
-    return leftScenicScore * rightScenicScore * aboveScenicScore * belowScenicScore
+    let leftDistance = visibleDistance(left, currentTree: currentTree)
+    let rightDistance = visibleDistance(right, currentTree: currentTree)
+    let aboveDistance = visibleDistance(above, currentTree: currentTree)
+    let belowDistance = visibleDistance(below, currentTree: currentTree)
+
+    return leftDistance * rightDistance * aboveDistance * belowDistance
 }
 
 func treeIsVisible(col: [Int], row: [Int], x: Int, y: Int, currentTree: Int) -> Bool {
@@ -51,6 +24,17 @@ func treeIsVisible(col: [Int], row: [Int], x: Int, y: Int, currentTree: Int) -> 
     row[x] > row[x+1..<row.count].max() ?? .max ||
     row[x] > col[0..<y].max() ?? .max ||
     row[x] > col[y+1..<col.count].max() ?? .max
+}
+
+func visibleDistance(_ treeHeights: [Int], currentTree: Int) -> Int {
+    var visibleDistance = 0
+    for height in treeHeights {
+        visibleDistance += 1
+        if height >= currentTree {
+            break
+        }
+    }
+    return visibleDistance
 }
 
 //MARK: - Part 1
