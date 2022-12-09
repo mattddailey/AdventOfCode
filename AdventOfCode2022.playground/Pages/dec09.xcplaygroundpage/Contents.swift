@@ -1,5 +1,4 @@
 import Foundation
-import Darwin
 
 enum Direction: String {
     case right = "R"
@@ -16,6 +15,15 @@ struct Coordinates: Hashable {
 class Knot {
     var coordinates = Coordinates()
     var prev: Knot? = nil
+    
+    func move(_ direction: Direction) {
+        switch direction {
+        case .right: coordinates.x += 1
+        case .left:  coordinates.x -= 1
+        case .up:    coordinates.y += 1
+        case .down:  coordinates.y -= 1
+        }
+    }
     
     var tail: Knot {
         var knot = self
@@ -43,7 +51,6 @@ struct Move {
 struct RopeSimulator {
     
     var head: Knot
-    
     var tailLocations: Set<Coordinates> = [Coordinates()]
     
     mutating func processMoves(_ moves: [Move]) {
@@ -51,26 +58,15 @@ struct RopeSimulator {
         for move in moves {
             for _ in 1...move.amount {
                 // move head
-                switch move.direction {
-                case .right:
-                    head.coordinates.x += 1
-                case .left:
-                    head.coordinates.x -= 1
-                case .up:
-                    head.coordinates.y += 1
-                case .down:
-                    head.coordinates.y -= 1
-                }
+                head.move(move.direction)
                 
                 // move remaining knot(s)
                 var current = head.prev
                 var next = head
-                while current != nil {
-                    if let nonOptionalCurrent = current {
-                        moveKnotIfNeeded(nonOptionalCurrent, next)
-                        next = nonOptionalCurrent
-                        current = next.prev
-                    }
+                while let knot = current {
+                    moveKnotIfNeeded(knot, next)
+                    next = knot
+                    current = next.prev
                 }
                 
                 // store tail location if it is new
@@ -80,54 +76,18 @@ struct RopeSimulator {
     }
 
     private mutating func moveKnotIfNeeded(_ knot: Knot, _ next: Knot) {
-        // up two right one; up one right two; down one right two; down two right one;
-        if (next.coordinates.y - knot.coordinates.y == 2) && (next.coordinates.x - knot.coordinates.x == 1) {
-            knot.coordinates.x += 1
-            knot.coordinates.y += 1
-        } else if (next.coordinates.y - knot.coordinates.y == 1) && (next.coordinates.x - knot.coordinates.x == 2) {
-            knot.coordinates.x += 1
-            knot.coordinates.y += 1
-        } else if (next.coordinates.y - knot.coordinates.y == -1) && (next.coordinates.x - knot.coordinates.x == 2) {
-            knot.coordinates.x += 1
-            knot.coordinates.y -= 1
-        } else if (next.coordinates.y - knot.coordinates.y == -2) && (next.coordinates.x - knot.coordinates.x == 1) {
-            knot.coordinates.x += 1
-            knot.coordinates.y -= 1
-        // up two left one; up one left two; down one left two; down two left one;
-        } else if (next.coordinates.y - knot.coordinates.y == 2) && (next.coordinates.x - knot.coordinates.x == -1) {
-            knot.coordinates.x -= 1
-            knot.coordinates.y += 1
-        } else if (next.coordinates.y - knot.coordinates.y == 1) && (next.coordinates.x - knot.coordinates.x == -2) {
-            knot.coordinates.x -= 1
-            knot.coordinates.y += 1
-        } else if (next.coordinates.y - knot.coordinates.y == -1) && (next.coordinates.x - knot.coordinates.x == -2) {
-            knot.coordinates.x -= 1
-            knot.coordinates.y -= 1
-        } else if (next.coordinates.y - knot.coordinates.y == -2) && (next.coordinates.x - knot.coordinates.x == -1) {
-            knot.coordinates.x -= 1
-            knot.coordinates.y -= 1
-        // two steps up & right, up and left, down and right, down and left
-        } else if (next.coordinates.y - knot.coordinates.y == 2) && (next.coordinates.x - knot.coordinates.x == 2) {
-            knot.coordinates.x += 1
-            knot.coordinates.y += 1
-        } else if (next.coordinates.y - knot.coordinates.y == 2) && (next.coordinates.x - knot.coordinates.x == -2) {
-            knot.coordinates.x -= 1
-            knot.coordinates.y += 1
-        } else if (next.coordinates.y - knot.coordinates.y == -2) && (next.coordinates.x - knot.coordinates.x == 2) {
-            knot.coordinates.x += 1
-            knot.coordinates.y -= 1
-        } else if (next.coordinates.y - knot.coordinates.y == -2) && (next.coordinates.x - knot.coordinates.x == -2) {
-            knot.coordinates.x -= 1
-            knot.coordinates.y -= 1
-        // two steps up down, left, right;
-        } else if next.coordinates.y - knot.coordinates.y == 2 {
-            knot.coordinates.y += 1
-        } else if next.coordinates.y - knot.coordinates.y == -2 {
-            knot.coordinates.y -= 1
-        } else if next.coordinates.x - knot.coordinates.x == 2 {
-            knot.coordinates.x += 1
-        } else if next.coordinates.x - knot.coordinates.x == -2 {
-            knot.coordinates.x -= 1
+        let xChange = next.coordinates.x - knot.coordinates.x
+        let yChange = next.coordinates.y - knot.coordinates.y
+        let moveX = abs(xChange) > 1 || (abs(xChange) > 0 && abs(yChange) > 1)
+        let moveY = abs(yChange) > 1 || (abs(yChange) > 0 && abs(xChange) > 1)
+        
+        if moveX {
+            let direction: Direction = xChange < 0 ? .left : .right
+            knot.move(direction)
+        }
+        if moveY {
+            let direction: Direction = yChange < 0 ? .down : .up
+            knot.move(direction)
         }
     }
 }
@@ -160,7 +120,7 @@ func part2() -> Int {
 
     let head = Knot()
     var current = head
-    for i in 1...9 {
+    for _ in 1...9 {
         let knot = Knot()
         current.prev = knot
         current = knot
