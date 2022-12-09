@@ -15,8 +15,17 @@ struct Coordinates: Hashable {
 
 class Knot {
     var coordinates = Coordinates()
-    weak var head: Knot? = nil
-    weak var tail: Knot? = nil
+    var prev: Knot? = nil
+    
+    var tail: Knot {
+        var knot = self
+        while knot.prev != nil {
+            if let prev = knot.prev {
+                knot = prev
+            }
+        }
+        return knot
+    }
 }
 
 struct Move {
@@ -33,8 +42,7 @@ struct Move {
 
 struct RopeSimulator {
     
-    var head = Coordinates()
-    var tail = Coordinates()
+    var head: Knot
     
     var tailLocations: Set<Coordinates> = [Coordinates()]
     
@@ -42,64 +50,89 @@ struct RopeSimulator {
         // move head
         for move in moves {
             for _ in 1...move.amount {
+                // move head
                 switch move.direction {
                 case .right:
-                    head.x += 1
+                    head.coordinates.x += 1
                 case .left:
-                    head.x -= 1
+                    head.coordinates.x -= 1
                 case .up:
-                    head.y += 1
+                    head.coordinates.y += 1
                 case .down:
-                    head.y -= 1
+                    head.coordinates.y -= 1
                 }
-                moveTailIfNeeded()
-                tailLocations.insert(tail)
+                
+                // move remaining knot(s)
+                var current = head.prev
+                var next = head
+                while current != nil {
+                    if let nonOptionalCurrent = current {
+                        moveKnotIfNeeded(nonOptionalCurrent, next)
+                        next = nonOptionalCurrent
+                        current = next.prev
+                    }
+                }
+                
+                // store tail location if it is new
+                tailLocations.insert(head.tail.coordinates)
             }
         }
     }
 
-    private mutating func moveTailIfNeeded() {
+    private mutating func moveKnotIfNeeded(_ knot: Knot, _ next: Knot) {
         // up two right one; up one right two; down one right two; down two right one;
-        if (head.y - tail.y == 2) && (head.x - tail.x == 1) {
-            tail.x += 1
-            tail.y += 1
-        } else if (head.y - tail.y == 1) && (head.x - tail.x == 2) {
-            tail.x += 1
-            tail.y += 1
-        } else if (head.y - tail.y == -1) && (head.x - tail.x == 2) {
-            tail.x += 1
-            tail.y -= 1
-        } else if (head.y - tail.y == -2) && (head.x - tail.x == 1) {
-            tail.x += 1
-            tail.y -= 1
+        if (next.coordinates.y - knot.coordinates.y == 2) && (next.coordinates.x - knot.coordinates.x == 1) {
+            knot.coordinates.x += 1
+            knot.coordinates.y += 1
+        } else if (next.coordinates.y - knot.coordinates.y == 1) && (next.coordinates.x - knot.coordinates.x == 2) {
+            knot.coordinates.x += 1
+            knot.coordinates.y += 1
+        } else if (next.coordinates.y - knot.coordinates.y == -1) && (next.coordinates.x - knot.coordinates.x == 2) {
+            knot.coordinates.x += 1
+            knot.coordinates.y -= 1
+        } else if (next.coordinates.y - knot.coordinates.y == -2) && (next.coordinates.x - knot.coordinates.x == 1) {
+            knot.coordinates.x += 1
+            knot.coordinates.y -= 1
         // up two left one; up one left two; down one left two; down two left one;
-        } else if (head.y - tail.y == 2) && (head.x - tail.x == -1) {
-            tail.x -= 1
-            tail.y += 1
-        } else if (head.y - tail.y == 1) && (head.x - tail.x == -2) {
-            tail.x -= 1
-            tail.y += 1
-        } else if (head.y - tail.y == -1) && (head.x - tail.x == -2) {
-            tail.x -= 1
-            tail.y -= 1
-        } else if (head.y - tail.y == -2) && (head.x - tail.x == -1) {
-            tail.x -= 1
-            tail.y -= 1
-        }
+        } else if (next.coordinates.y - knot.coordinates.y == 2) && (next.coordinates.x - knot.coordinates.x == -1) {
+            knot.coordinates.x -= 1
+            knot.coordinates.y += 1
+        } else if (next.coordinates.y - knot.coordinates.y == 1) && (next.coordinates.x - knot.coordinates.x == -2) {
+            knot.coordinates.x -= 1
+            knot.coordinates.y += 1
+        } else if (next.coordinates.y - knot.coordinates.y == -1) && (next.coordinates.x - knot.coordinates.x == -2) {
+            knot.coordinates.x -= 1
+            knot.coordinates.y -= 1
+        } else if (next.coordinates.y - knot.coordinates.y == -2) && (next.coordinates.x - knot.coordinates.x == -1) {
+            knot.coordinates.x -= 1
+            knot.coordinates.y -= 1
+        // two steps up & right, up and left, down and right, down and left
+        } else if (next.coordinates.y - knot.coordinates.y == 2) && (next.coordinates.x - knot.coordinates.x == 2) {
+            knot.coordinates.x += 1
+            knot.coordinates.y += 1
+        } else if (next.coordinates.y - knot.coordinates.y == 2) && (next.coordinates.x - knot.coordinates.x == -2) {
+            knot.coordinates.x -= 1
+            knot.coordinates.y += 1
+        } else if (next.coordinates.y - knot.coordinates.y == -2) && (next.coordinates.x - knot.coordinates.x == 2) {
+            knot.coordinates.x += 1
+            knot.coordinates.y -= 1
+        } else if (next.coordinates.y - knot.coordinates.y == -2) && (next.coordinates.x - knot.coordinates.x == -2) {
+            knot.coordinates.x -= 1
+            knot.coordinates.y -= 1
         // two steps up down, left, right;
-        if head.y - tail.y == 2 {
-            tail.y += 1
-        } else if head.y - tail.y == -2 {
-            tail.y -= 1
-        } else if head.x - tail.x == 2 {
-            tail.x += 1
-        } else if head.x - tail.x == -2 {
-            tail.x -= 1
+        } else if next.coordinates.y - knot.coordinates.y == 2 {
+            knot.coordinates.y += 1
+        } else if next.coordinates.y - knot.coordinates.y == -2 {
+            knot.coordinates.y -= 1
+        } else if next.coordinates.x - knot.coordinates.x == 2 {
+            knot.coordinates.x += 1
+        } else if next.coordinates.x - knot.coordinates.x == -2 {
+            knot.coordinates.x -= 1
         }
     }
 }
 
-
+//MARK: - Part 1
 
 func part1() -> Int {
     let helper = InputHelper(fileName: "dec09Input")
@@ -107,10 +140,37 @@ func part1() -> Int {
         .map { $0.components(separatedBy: .whitespaces) }
         .compactMap(Move.init)
     
-    var ropeSimulator = RopeSimulator()
+    let head = Knot()
+    let tail = Knot()
+    head.prev = tail
+    
+    var ropeSimulator = RopeSimulator(head: head)
     ropeSimulator.processMoves(moves)
     
     return ropeSimulator.tailLocations.count
 }
 
+//MARK: - Part 2
+
+func part2() -> Int {
+    let helper = InputHelper(fileName: "dec09Input")
+    let moves = helper.inputAsArraySeparatedBy(.newlines)
+        .map { $0.components(separatedBy: .whitespaces) }
+        .compactMap(Move.init)
+
+    let head = Knot()
+    var current = head
+    for i in 1...9 {
+        let knot = Knot()
+        current.prev = knot
+        current = knot
+    }
+    
+    var ropeSimulator = RopeSimulator(head: head)
+    ropeSimulator.processMoves(moves)
+
+    return ropeSimulator.tailLocations.count
+}
+
 print(part1())
+print(part2())
