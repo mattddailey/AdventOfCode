@@ -49,8 +49,7 @@ struct Move {
 
 
 struct RopeSimulator {
-    
-    var head: Knot
+    let head: Knot
     var tailLocations: Set<Coordinates> = [Coordinates()]
     
     mutating func processMoves(_ moves: [Move]) {
@@ -75,7 +74,7 @@ struct RopeSimulator {
         }
     }
 
-    private mutating func moveKnotIfNeeded(_ knot: Knot, _ next: Knot) {
+    private func moveKnotIfNeeded(_ knot: Knot, _ next: Knot) {
         let xChange = next.coordinates.x - knot.coordinates.x
         let yChange = next.coordinates.y - knot.coordinates.y
         let moveX = abs(xChange) > 1 || (abs(xChange) > 0 && abs(yChange) > 1)
