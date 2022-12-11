@@ -75,6 +75,7 @@ func calculateMonkeyBusiness(_ monkeys: [Monkey], rounds: Int, useStressReducer:
                 
                 if useStressReducer {
                     // keep stress levels down by performing modulo of all divisible amounts multiplied together
+                    // because they are all prime & unique
                     tempValue %= stressReducer
                 } else {
                     // monkey gets bored
