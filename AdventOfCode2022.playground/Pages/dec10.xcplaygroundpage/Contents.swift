@@ -1,7 +1,5 @@
 import Foundation
 
-//MARK: - Part 1
-
 struct Direction {
     let type: DirectionType
     var remainingCycles: Int = 0
@@ -26,6 +24,8 @@ enum DirectionType {
 
 struct ElfDeviceCPU {
     
+    var pixels = ""
+    var pixelRowCount = 0
     var register = 1
     var signalStrength = 0
     
@@ -34,13 +34,12 @@ struct ElfDeviceCPU {
     
     mutating func processDirections(_ directions: [Direction]) {
         var remainingDirections = directions
-        while !remainingDirections.isEmpty {
+        while !remainingDirections.isEmpty || inProgress != nil {
+            drawPixel()
+            
             if inProgress == nil {
                 let direction = remainingDirections.removeFirst()
-                switch direction.type {
-                case .noOp:
-                    break
-                case .add(_):
+                if case .add(_) = direction.type {
                     inProgress = direction
                 }
             } else {
@@ -50,12 +49,19 @@ struct ElfDeviceCPU {
             cycleCounter += 1
             checkSignalStrength()
         }
+    }
+    
+    mutating private func drawPixel() {
+        if pixelRowCount <= register + 1 && pixelRowCount >= register - 1 {
+            pixels.append("#")
+        } else {
+            pixels.append(".")
+        }
+        pixelRowCount += 1
         
-        // complete in progress (if there is one)
-        while inProgress != nil {
-            processInProgress()
-            cycleCounter += 1
-            checkSignalStrength()
+        if pixelRowCount % 40 == 0 {
+            pixels.append("\n")
+            pixelRowCount = 0
         }
     }
     
@@ -77,9 +83,9 @@ struct ElfDeviceCPU {
     }
 }
 
-//MARK: - Part 1
+//MARK: - Main
 
-func part1() -> Int {
+func dec10() {
     let helper = InputHelper(fileName: "dec10Input")
     let directions = helper.inputAsArraySeparatedBy(.newlines)
         .compactMap(Direction.init)
@@ -87,8 +93,8 @@ func part1() -> Int {
     var elfDeviceCPU = ElfDeviceCPU()
     elfDeviceCPU.processDirections(directions)
     
-
-    return elfDeviceCPU.signalStrength
+    print("Signal Strength: \(elfDeviceCPU.signalStrength) \n")
+    print("CRT Ouput: \n\(elfDeviceCPU.pixels)")
 }
 
-print(part1())
+dec10()
