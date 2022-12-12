@@ -54,7 +54,7 @@ func findShortestPath(from source: Location, to destination: Location, heights: 
             }
         }
     }
-    return 0
+    return nil
 }
 
 func main() {
@@ -65,6 +65,7 @@ func main() {
         .filter { !$0.isEmpty }
         .map { Array($0) }
 
+    // get source and destination locations, and all locations with character a
     var aLocations: [Location] = []
     for y in 0..<input.count {
         for x in 0..<input[0].count {
@@ -81,6 +82,7 @@ func main() {
         }
     }
     
+    // create 2D array of heights
     let heights = input
         .map { row in
             row.compactMap { $0.height }
@@ -91,13 +93,19 @@ func main() {
         return
     }
 
+    // Part 1
     let shortestPath = findShortestPath(from: source, to: destination, heights: heights)
-    print("Part 1 shortest path: \(shortestPath ?? 0)")
+    if let shortestPath = shortestPath {
+        print("Part 1 shortest path: \(shortestPath)")
+    }
     
-//    let shortestPathPart2 = aLocations
-//        .compactMap { findShortestPath(from: $0, to: destination, heights: heights) }
-//        .min()
-//    print("Part 2 shortest path: \(shortestPathPart2)")
+    // Part 2
+    let shortestPathPart2 = aLocations
+        .compactMap { findShortestPath(from: $0, to: destination, heights: heights) }
+        .min()
+    if let shortestPathPart2 = shortestPathPart2 {
+        print("Part 2 shortest path: \(shortestPathPart2)")
+    }
 }
 
 main()
