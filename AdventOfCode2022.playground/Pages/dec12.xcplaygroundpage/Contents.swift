@@ -1,120 +1,103 @@
 import Foundation
 
-//MARK: - Data Structures
+struct Location: Hashable {
+    let x: Int
+    let y: Int
+}
 
-class Square {
-    let id = UUID()
-    var distance = 0
-    let name: Character
-    var connections: [Square] = []
-    let height: Int
-    
-    init?(char: Character) {
-        self.name = char
-        
-        if char == "S" {
-            self.height = 97
-        } else if name == "E" {
-            self.height = 122
-        } else if let ascii = name.asciiValue {
-            self.height = Int(ascii)
+extension Character {
+    var height: Int {
+        if self == "S" {
+            return 97
+        } else if self == "E" {
+            return 122
+        } else if let ascii = self.asciiValue {
+            return Int(ascii)
         } else {
-            return nil
+            return Int.max
         }
     }
 }
 
-func findShortestPath(from source: Square) -> Int {
-    var queue = Queue<Square>()
-    var visited = Set<UUID>()
-    visited.insert(source.id)
+func findShortestPath(from source: Location, to destination: Location, heights: [[Int]]) -> Int? {
+    var distances: [Location: Int] = [:]
+    var queue = Queue<Location>()
+    var visited = Set<Location>()
+    
+    distances[source] = 0
+    visited.insert(source)
     queue.enqueue(source)
     
     while let current = queue.dequeue() {
-        if current.name == "E" {
-            return current.distance
+        if current == destination {
+            return distances[destination]
         }
         
-        visited.insert(current.id)
-        
-        for connection in current.connections {
-            if !visited.contains(connection.id) {
-                queue.enqueue(connection)
-                
-                connection.distance = current.distance + 1
-            }
-        }
-    }
-    return 0
-}
-
-func createGraph(input: [String]) -> (Square?, [Square]) {
-    // create list of squares
-    let squares = input
-        .filter { !$0.isEmpty }
-        .map { Array($0).compactMap(Square.init) }
-    
-    var source: Square? = nil
-    var part2Sources: [Square] = []
-    for j in 0..<squares.count {
-        for i in 0..<squares[0].count {
-            
-            // set source
-            let current = squares[j][i]
-            if current.name == "S" {
-                source = current
-                part2Sources.append(current)
-            } else if current.name == "a" {
-                part2Sources.append(current)
-            }
-            
-            
-            // define connections for all squares
-            for x in max(0, i-1)...min(i+1, squares[0].count-1) {
-                for y in max(0, j-1)...min(j+1, squares.count-1) {
-                    if (x != i || y != j) && !(x != i && y != j) {
-                        let dest = squares[y][x]
-                        let source = squares[j][i]
-                        if dest.height <= source.height + 1, dest.name != "S" {
-                            source.connections.append(dest)
+        let x = current.x
+        let y = current.y
+        let currentHeight = heights[y][x]
+        for i in max(0, x-1)...min(x+1, heights[0].count-1) {
+            for j in max(0, y-1)...min(y+1, heights.count-1) {
+                if (x != i || y != j) && !(x != i && y != j) {
+                    let destHeight = heights[j][i]
+                    if destHeight <= currentHeight + 1  {
+                        let location = Location(x: i, y: j)
+                        if !visited.contains(location) {
+                            visited.insert(location)
+                            queue.enqueue(location)
+                            if let sourceDistance = distances[current] {
+                                distances[location] = sourceDistance + 1
+                            }
                         }
                     }
                 }
             }
         }
     }
-    
-    return (source, part2Sources)
+    return 0
 }
 
-//MARK: - Main
-
-func part1() -> Int {
+func main() {
+    var source: Location? = nil
+    var destination: Location? = nil
     let helper = InputHelper(fileName: "dec12Input")
-    
-    // create list of squares
-    let input = helper.inputAsString.components(separatedBy: .newlines)
-    let (source, _) = createGraph(input: input)
-  
-    guard let source = source  else { return 0 }
-    let path = findShortestPath(from: source)
+    let input = helper.inputAsArraySeparatedBy(.newlines)
+        .filter { !$0.isEmpty }
+        .map { Array($0) }
 
-    return path
+    var aLocations: [Location] = []
+    for y in 0..<input.count {
+        for x in 0..<input[0].count {
+            if input[y][x] == "S" {
+                source = Location(x: x, y: y)
+                let a = Location(x: x, y: y)
+                aLocations.append(a)
+            } else if input[y][x] == "E" {
+                destination = Location(x: x, y: y)
+            } else if input[y][x] == "a" {
+                let a = Location(x: x, y: y)
+                aLocations.append(a)
+            }
+        }
+    }
+    
+    let heights = input
+        .map { row in
+            row.compactMap { $0.height }
+        }
+
+    guard let source = source, let destination = destination else {
+        print("Could not find source / destination")
+        return
+    }
+
+    let shortestPath = findShortestPath(from: source, to: destination, heights: heights)
+    print("Part 1 shortest path: \(shortestPath ?? 0)")
+    
+//    let shortestPathPart2 = aLocations
+//        .compactMap { findShortestPath(from: $0, to: destination, heights: heights) }
+//        .min()
+//    print("Part 2 shortest path: \(shortestPathPart2)")
 }
 
-func part2() -> Int {
-    let helper = InputHelper(fileName: "dec12Input")
-    
-    // create list of squares
-    let input = helper.inputAsString.components(separatedBy: .newlines)
-    let (_, sources) = createGraph(input: input)
-  
-    let result = sources
-        .map(findShortestPath)
-        .min()
-    
-    return result ?? 0
-}
-
-print(part1())
-print(part2())
+main()
