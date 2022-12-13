@@ -57,7 +57,8 @@ func createPacket(_ string: String) -> [Component]? {
 
 // true: right order
 // false: wrong order
-func areOrderedCorrectly(_ pair: PacketPair) -> Bool {
+// nil: don't know if order is right yet
+func areOrderedCorrectly(_ pair: PacketPair) -> Bool? {
     let elementsToCompare = min(pair.0.count, pair.1.count)
     
     for index in 0..<elementsToCompare {
@@ -70,7 +71,7 @@ func areOrderedCorrectly(_ pair: PacketPair) -> Bool {
                 print("Right side is smaller, so inputs are not in the right order")
                 return false
             } else if amount1 < amount2 {
-                print("LEFT side is smaller, so inputs are not in the right order")
+                print("LEFT side is smaller, so inputs are in the right order")
                 return true
             }
         
@@ -80,8 +81,8 @@ func areOrderedCorrectly(_ pair: PacketPair) -> Bool {
             let list1 = pair.0[index].asComponentList
             let list2 = pair.1[index].asComponentList
             print("COMPARE \(list1) vs \(list2)")
-            if !areOrderedCorrectly((list1, list2)) {
-                return false
+            if let result = areOrderedCorrectly((list1, list2)) {
+                return result
             }
         }
     }
@@ -95,8 +96,8 @@ func areOrderedCorrectly(_ pair: PacketPair) -> Bool {
         print("Right side ran out of items, so inputs are NOT in the right order")
         return false
     } else {
-        // lists must be equal
-        return true
+        // cannot determine if ordered correctly
+        return nil
     }
     
 }
@@ -116,7 +117,8 @@ func main() {
     var count = 0
     for (index, pair) in packetPairs.enumerated() {
         let result = areOrderedCorrectly(pair)
-        if result {
+        if result == true {
+            print("index \(index+1) is correct")
             count += index + 1
         }
     }
