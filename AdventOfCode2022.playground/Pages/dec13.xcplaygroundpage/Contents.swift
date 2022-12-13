@@ -3,7 +3,7 @@ import Foundation
 
 typealias PacketPair = ([Component], [Component])
 
-enum Component {
+enum Component: Equatable {
     case component([Component])
     case int(Int)
     
@@ -37,16 +37,6 @@ extension Component: Decodable {
     }
 }
 
-// For Debugging
-extension Component: CustomStringConvertible {
-    var description: String {
-        switch self {
-        case .component(let component): return component.description
-        case .int(let int):             return String(int)
-        }
-    }
-}
-
 func createPacket(_ string: String) -> [Component]? {
     if let data = string.data(using: .utf8), let packet = try? JSONDecoder().decode([Component].self, from: data) {
         return packet
@@ -58,51 +48,45 @@ func createPacket(_ string: String) -> [Component]? {
 // true: right order
 // false: wrong order
 // nil: don't know if order is right yet
-func areOrderedCorrectly(_ pair: PacketPair) -> Bool? {
-    let elementsToCompare = min(pair.0.count, pair.1.count)
+func compare(_ lhs: [Component], _ rhs: [Component]) -> ComparisonResult {
+    let elementsToCompare = min(lhs.count, rhs.count)
     
     for index in 0..<elementsToCompare {
-        switch (pair.0[index], pair.1[index]) {
+        switch (lhs[index], rhs[index]) {
         
         // compare 2 numbers
         case (.int(let amount1), .int(let amount2)):
-            print("compare \(amount1) vs \(amount2)")
             if amount1 > amount2 {
-                print("Right side is smaller, so inputs are not in the right order")
-                return false
+                return .orderedDescending
             } else if amount1 < amount2 {
-                print("LEFT side is smaller, so inputs are in the right order")
-                return true
+                return .orderedAscending
             }
         
         // recursively compare for all other cases
         default:
-            print("COMPARE \(pair.0[index]) vs \(pair.1[index])")
-            let list1 = pair.0[index].asComponentList
-            let list2 = pair.1[index].asComponentList
-            print("COMPARE \(list1) vs \(list2)")
-            if let result = areOrderedCorrectly((list1, list2)) {
-                return result
+            let list1 = lhs[index].asComponentList
+            let list2 = rhs[index].asComponentList
+            let comparison = compare(list1, list2)
+            if comparison != .orderedSame {
+                return comparison
             }
         }
     }
     
-    if pair.0.count < pair.1.count {
+    if lhs.count < rhs.count {
         // left side ran out of items
-        print("Left side ran out of items, so inputs are in the RIGHT ORDER")
-        return true
-    } else if pair.0.count > pair.1.count {
+        return .orderedAscending
+    } else if lhs.count > rhs.count {
         // right side ran out of items
-        print("Right side ran out of items, so inputs are NOT in the right order")
-        return false
+        return .orderedDescending
     } else {
         // cannot determine if ordered correctly
-        return nil
+        return .orderedSame
     }
     
 }
 
-func main() {
+func part1() {
     let helper = InputHelper(fileName: "dec13Input")
     
     // convert input to type PacketPair (alias for two lists of components)
@@ -116,15 +100,38 @@ func main() {
     
     var count = 0
     for (index, pair) in packetPairs.enumerated() {
-        let result = areOrderedCorrectly(pair)
-        if result == true {
-            print("index \(index+1) is correct")
+        let result = compare(pair.0, pair.1)
+        if result == .orderedAscending {
             count += index + 1
         }
     }
     
-    // Part 1
+    // print part1 result
     print("Sum of indices in correct order: \(count)")
 }
 
-main()
+func part2() {
+
+    let helper = InputHelper(fileName: "dec13Input")
+    var packets = helper.inputAsString.components(separatedBy: .newlines)
+        .filter { !$0.isEmpty }
+        .compactMap(createPacket)
+
+    // append dividers
+    packets.append([.component([.int(2)])])
+    packets.append([.component([.int(6)])])
+
+    // sort using compare function
+    packets.sort { (lhs, rhs) -> Bool in
+        return compare(lhs, rhs) == .orderedAscending
+    }
+    
+    // print part2 result
+    if let divider1Index = packets.firstIndex(where: { $0 == [.component([.int(2)])]}),
+       let divider2Index = packets.firstIndex(where: { $0 == [.component([.int(6)])]}) {
+        print("Decoder key for the distress signal is \((divider1Index+1) * (divider2Index+1))")
+    }
+}
+
+part1()
+part2()
