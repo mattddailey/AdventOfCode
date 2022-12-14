@@ -16,12 +16,6 @@ extension Point {
     }
 }
 
-enum Material {
-    case air
-    case rock
-    case sand
-}
-
 struct Line {
     let start: Point
     let end: Point
@@ -53,13 +47,12 @@ struct Line {
     }
 }
 
-typealias CaveTrace = [Point: Material]
-
 // MARK: - Shared
 
 class CaveMapper {
-    var caveTrace = CaveTrace()
+    var occupiedPoints = Set<Point>()
     var minY = 0
+    let start = Point(x: 500, y: 0)
     
     var floor: Int {
         return minY + 2
@@ -68,7 +61,7 @@ class CaveMapper {
     func drawLines(_ lines: [Line]) {
         for line in lines {
             var temp = line.start
-            caveTrace[line.start] = .rock
+            occupiedPoints.insert(temp)
             minY = max(temp.y, line.end.y, minY)
             while (temp.x != line.end.x) ^ (temp.y != line.end.y) {
                 switch line.direction {
@@ -77,7 +70,7 @@ class CaveMapper {
                 case .east: temp = Point(x: temp.x + 1, y: temp.y)
                 case .west: temp = Point(x: temp.x - 1, y: temp.y)
                 }
-                caveTrace[temp] = .rock
+                occupiedPoints.insert(temp)
                 if temp.y > minY {
                     minY = temp.y
                 }
@@ -86,22 +79,21 @@ class CaveMapper {
     }
     
     func dropSand(hasFloor: Bool) -> Int {
-        let sandStart = Point(x: 500, y: 0)
-        var sand = sandStart
+        var sand = start
         var settledSandCount = 0
-        while hasFloor ? caveTrace[sandStart] != .sand : sand.y <= minY {
+        while hasFloor ? !occupiedPoints.contains(start) : sand.y <= minY {
             if hasFloor, sand.oneDown.y == floor {
-                caveTrace[sand] = .sand
+                occupiedPoints.insert(sand)
                 settledSandCount += 1
                 sand = Point(x: 500, y: 0)
-            } else if caveTrace[sand.oneDown] == nil {
+            } else if !occupiedPoints.contains(sand.oneDown) {
                 sand = sand.oneDown
-            } else if caveTrace[sand.oneDownOneLeft] == nil {
+            } else if !occupiedPoints.contains(sand.oneDownOneLeft) {
                 sand = sand.oneDownOneLeft
-            } else if caveTrace[sand.oneDownOneRight] == nil {
+            } else if !occupiedPoints.contains(sand.oneDownOneRight) {
                 sand = sand.oneDownOneRight
             } else {
-                caveTrace[sand] = .sand
+                occupiedPoints.insert(sand)
                 settledSandCount += 1
                 sand = Point(x: 500, y: 0)
             }
