@@ -16,6 +16,7 @@ public struct Point: Hashable {
     }
 }
 
+
 extension Point {
     func spreadForRadius(_ radius: Int, minimum: Int? = nil, maximum: Int? = nil) -> Set<Int> {
         if let minimum = minimum, let maximum = maximum {
@@ -103,28 +104,28 @@ func part2() {
     let max = 4000000
     
     let helper = InputHelper(fileName: "dec15Input")
-    let (sensors, beaconPoints) = createMap(helper.inputAsString)
+    let (sensors, _) = createMap(helper.inputAsString)
     
-    let allX = Set(0...max)
-    
-    
+    var ans: Int? = nil
     for y in 0...max {
-        var result = Set<Int>()
-        sensors
-            .filter { $0.spreadContains(y) }
-            .map {
-                let yDiff =  y - $0.point.y
-                let radius = $0.distanceToBeacon - abs(yDiff)
-                result.formUnion($0.point.spreadForRadius(radius, minimum: 0, maximum: max))
+        var x = 0
+        while x <= max, ans == nil {
+            let current = Point(x: x, y: y)
+            if let sensor = sensors.first(where: { $0.point.manhattanDistance(to: current) <= $0.distanceToBeacon }) {
+                let xDiff = sensor.point.x - x
+                let yDiff =  y - sensor.point.y
+                let radius = sensor.distanceToBeacon - abs(yDiff)
+                x += (xDiff + radius + 1)
+                
+            } else {
+                ans = 4000000 * x + y
+                break
             }
-        
-        let beaconX = allX.subtracting(result)
-        if !beaconX.isEmpty, let x = beaconX.first {
-            print("Tuning frequency: \(x * 4000000 + y)")
-            break
         }
     }
+    
+    print("Tuning frequency: \(ans ?? 0)")
 }
 
-part1()
+//part1()
 part2()
