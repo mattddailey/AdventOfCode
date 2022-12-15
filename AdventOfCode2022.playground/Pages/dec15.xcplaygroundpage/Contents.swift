@@ -2,31 +2,6 @@ import Foundation
 
 // MARK: - Data Structures
 
-public struct Point: Hashable {
-    public var x: Int
-    public var y: Int
-    
-    public init(x: Int, y: Int) {
-        self.x = x
-        self.y = y
-    }
-    
-    public func manhattanDistance(to point: Point) -> Int {
-        return abs(self.x - point.x) + abs(self.y - point.y)
-    }
-}
-
-
-extension Point {
-    func spreadForRadius(_ radius: Int, minimum: Int? = nil, maximum: Int? = nil) -> Set<Int> {
-        if let minimum = minimum, let maximum = maximum {
-            return Set(max(self.x-radius, minimum)...min(self.x+radius, maximum))
-        } else {
-            return Set(self.x-radius...self.x+radius)
-        }
-    }
-}
-
 struct Sensor: Hashable {
     let point: Point
     let closestBeacon: Point
@@ -55,6 +30,16 @@ struct Sensor: Hashable {
     }
 }
 
+extension Point {
+    func spreadForRadius(_ radius: Int, minimum: Int? = nil, maximum: Int? = nil) -> Set<Int> {
+        if let minimum = minimum, let maximum = maximum {
+            return Set(max(self.x-radius, minimum)...min(self.x+radius, maximum))
+        } else {
+            return Set(self.x-radius...self.x+radius)
+        }
+    }
+}
+
 // MARK: - Shared
 
 func createMap(_ input: String) -> (Set<Sensor>, Set<Point>) {
@@ -77,9 +62,10 @@ func createMap(_ input: String) -> (Set<Sensor>, Set<Point>) {
 
 func part1() {
     let row = 2000000
-    
-    let helper = InputHelper(fileName: "dec15Input")
-    let (sensors, beaconPoints) = createMap(helper.inputAsString)
+
+    let input = try? String(contentsOfFile: "Input/dec15Input.txt")
+    guard let input = input else { return }
+    let (sensors, beaconPoints) = createMap(input)
     
     var result = Set<Int>()
     var xIndexForBeaconsInRow = Set<Int>()
@@ -89,43 +75,44 @@ func part1() {
     }
 
     sensors
-        .filter { $0.spreadContains(row) }
-        .map {
+        .filter { $0.spreadContains(row) } // use only sensors that have a spread that contains the desired row
+        .forEach {
             let yDiff =  row - $0.point.y
             let radius = $0.distanceToBeacon - abs(yDiff)
-            result.formUnion($0.point.spreadForRadius(radius))
+            result.formUnion($0.point.spreadForRadius(radius)) // builds list of x indexes where beacon cannot be present
         }
     
     print("Beacon cannot be present in \(result.subtracting(xIndexForBeaconsInRow).count) points in row \(row)")
 }
 
-func part2() {
+func part2() -> Int {
     
     let max = 4000000
     
-    let helper = InputHelper(fileName: "dec15Input")
-    let (sensors, _) = createMap(helper.inputAsString)
-    
-    var ans: Int? = nil
+    let input = try? String(contentsOfFile: "Input/dec15Input.txt")
+    guard let input = input else { return 0 }
+    let (sensors, _) = createMap(input)
+
     for y in 0...max {
         var x = 0
-        while x <= max, ans == nil {
+        while x <= max {
             let current = Point(x: x, y: y)
             if let sensor = sensors.first(where: { $0.point.manhattanDistance(to: current) <= $0.distanceToBeacon }) {
+                // use spread of closest sensor to determine radius on given line, and advance x as much as possible
                 let xDiff = sensor.point.x - x
                 let yDiff =  y - sensor.point.y
                 let radius = sensor.distanceToBeacon - abs(yDiff)
                 x += (xDiff + radius + 1)
-                
             } else {
-                ans = 4000000 * x + y
-                break
+                // found the point that is not in proximity of a sensor
+                return 4000000 * x + y
             }
         }
     }
     
-    print("Tuning frequency: \(ans ?? 0)")
+    // should never get here
+    return 0
 }
 
-//part1()
-part2()
+part1()
+print("Tuning frequency: \(part2())")
