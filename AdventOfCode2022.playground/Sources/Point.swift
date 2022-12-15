@@ -8,4 +8,8 @@ public struct Point: Hashable {
         self.x = x
         self.y = y
     }
+    
+    public func manhattanDistance(to point: Point) -> Int {
+        return abs(self.x - point.x) + abs(self.y - point.y)
+    }
 }
