@@ -87,14 +87,18 @@ struct Dec162022: ParsableCommand {
         return valves
     }
 
-    func maxFlow(valves: [String : Valve], current: Valve, maxTime: Int = 30, time: Int = 0, visited: [Valve] = []) -> Int {
+    func maxFlow(valves: [String : Valve], current: Valve, cumulativeFlow: Int = 0, maxTime: Int = 30, time: Int = 0, visited: [Valve] = []) -> Int {
         if time >= maxTime {
-            return 0
+            return cumulativeFlow
         }
 
-        let flow = current.flowRate * (maxTime - time)
+
         var mutableVisited = visited
         mutableVisited.append(current)
+
+        let flow = current.flowRate * (30 - time)
+        var mutableFlow = cumulativeFlow
+        mutableFlow += flow
 
         let neighborsFlow = current.neighbors
             .filter {  pair in
@@ -104,10 +108,10 @@ struct Dec162022: ParsableCommand {
             }
             .compactMap { pair -> Int in
                 guard let neighbor = valves[pair.key], let travelTime = current.neighbors[neighbor.name] else { return 0 }
-                return maxFlow(valves: valves, current: neighbor, time: time + travelTime + 1, visited: mutableVisited)
+                return maxFlow(valves: valves, current: neighbor, cumulativeFlow: mutableFlow, maxTime: maxTime, time: time + travelTime + 1, visited: mutableVisited)
             }
             .max()
-        
+
 
         return flow + (neighborsFlow ?? 0)
     }
