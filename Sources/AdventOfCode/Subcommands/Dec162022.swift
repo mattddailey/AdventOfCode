@@ -1,6 +1,5 @@
 import Algorithms
 import ArgumentParser
-import SwiftGraph
 import Foundation
 
 struct Dec162022: ParsableCommand {
