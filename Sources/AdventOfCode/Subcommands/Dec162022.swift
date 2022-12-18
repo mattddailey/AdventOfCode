@@ -40,34 +40,34 @@ struct Dec162022: ParsableCommand {
         }
         
         func determineMaximumPressureReleased() -> Int {
+            guard let start = start else { return 0 }
             let valves = Array(allValves.subtracting(zeroValves))
             
             // find all permutations of valves
             let permutations = valves.permutations()
+
+            print(permutations.count)
             
             // loop through list of permutations, calculate max pressure released
-            // let maxPressure = permutations
-            //     .map(processPath)
-            //     .max()
+            let maxPressure = permutations
+                .filter { order in
+                    var count = distances[start.index][order[0].index] + order.count
+                    var index = 0
+                    while count < timeRemaining, index < order.count - 1 {
+                        count += distances[order[index].index][order[index+1].index]
+                        index += 1
+                    }
+                    return count < timeRemaining
+                 }
+                .map(processPath)
+                .max()
 
-            var max = 0
-            for (index, perm) in permutations.enumerated() {
-                if index % 1000000 == 0 {
-                    print("\(index / permutations.count * 100)% complete at index \(index)")
-                }
-                let result = processPath(perm)
-                if result > max {
-                    max = result
-                }
-            }
-            
-            print(permutations.count)
-            return 0
-            // return maxPressure ?? 0
+            return maxPressure ?? 0
         }
         
         // takes a list of valves, traverses them in order, and determines flow
         func processPath(_ valves: [Valve]) -> Int {
+            print("processing")
             var openValves = Set<Valve>()
             guard let start = start else { return 0 }
             var currentValve = start
@@ -116,6 +116,8 @@ struct Dec162022: ParsableCommand {
 
     mutating func run() throws {
         let input  = try String(contentsOfFile: path)
+        let start = Date()
+        defer { print("Part 1 complete in \(Date().timeIntervalSince(start)) seconds") }
         let (valves, distances) = createDataStructures(input.components(separatedBy: .newlines).filter { !$0.isEmpty })
 
         let volcanoEscape = VolcanoEscape(valves: valves, distances: distances)
