@@ -87,12 +87,12 @@ struct Dec162022: ParsableCommand {
         return valves
     }
 
-    func maxFlow(valves: [String : Valve], current: Valve, time: Int = 0, visited: [Valve] = []) -> Int {
-        if time >= 30 {
+    func maxFlow(valves: [String : Valve], current: Valve, maxTime: Int = 30, time: Int = 0, visited: [Valve] = []) -> Int {
+        if time >= maxTime {
             return 0
         }
 
-        let flow = current.flowRate * (30 - time)
+        let flow = current.flowRate * (maxTime - time)
         var mutableVisited = visited
         mutableVisited.append(current)
 
