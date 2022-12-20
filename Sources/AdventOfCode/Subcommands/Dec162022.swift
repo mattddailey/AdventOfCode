@@ -10,9 +10,9 @@ struct Dec162022: ParsableCommand {
     // MARK: - Data Structures
 
     struct State: Hashable {
-        let current: Valve
+        let valve: Valve
         let time: Int
-        let visited: Set<Valve>
+        let mask: Int
     }
 
     struct Valve: Hashable, Codable {
@@ -29,8 +29,12 @@ struct Dec162022: ParsableCommand {
 
         // maps current state to a flow value (int)
         var cache: [State: Flow] = [:]
+
         let start: Valve
         let valves: [String: Valve]
+
+        // maps non-empty valve names to an index for bitmask
+        var nonEmptyIndices: [String: Int] = [:]
 
 
         init(valves: [String : Valve]) {
@@ -39,55 +43,55 @@ struct Dec162022: ParsableCommand {
             }
             self.start = start
             self.valves = valves
+            let nonEmpty = valves
+                .filter({ $0.value.flowRate != 0 })
+                .map { $0.value.name }
+
+            for (index, name) in nonEmpty.enumerated() {
+                self.nonEmptyIndices[name] = index
+            }
         }
 
-        func maxFlow(current: Valve, maxTime: Int = 30, time: Int = 0, visited: Set<Valve> = Set<Valve>(), addElephant: Bool = false) -> Int {
-            // check if we have run out of time or visited all valves with flow
-            if time >= maxTime {
-                return 0
+        func maxFlow(valve: Valve, time: Int, mask: Int) -> Flow {
+            let state = State(valve: valve, time: time, mask: mask)
+            if let cached = cache[state] {
+                return cached
             }
 
-            // calculate current flow from newly opened valve; check if we have a cached value for maximum additional flow possible
-            let flowFromCurrent = current.flowRate * (maxTime - time)
-            let state = State(current: current, time: maxTime - time, visited: visited)
-            if let cachedMaxAdditionalFlow = cache[state] {
-                return flowFromCurrent + cachedMaxAdditionalFlow
+            var flow = 0
+            for neighbor in valve.neighbors.keys {
+                // calculate bit for neighbor
+                guard let index = nonEmptyIndices[neighbor] else { continue }
+                let bit = 1 << index
+
+                // check if we already visited already visited neighbor
+                guard mask & bit == 0 else { continue }
+
+                // calculate travel time to neighbor, confirm we still have time to get there
+                guard let neighborValve = valves[neighbor], let travelTime = valve.neighbors[neighborValve.name] else { continue }
+                let remainingTime = time - travelTime - 1
+                guard remainingTime > 0 else { continue }
+
+                // calculate maximum possible remaining flow
+                flow = max(flow, maxFlow(valve: neighborValve, time: remainingTime, mask: mask | bit) + neighborValve.flowRate * remainingTime)
             }
-            
-            // append current to visited, now that its flow value has been added
-            var mutableVisited = visited
-            mutableVisited.insert(current)
 
-            // calculate maximum additional flow based on current state
-            let maxAdditionalFlow = current.neighbors
-                .filter {  pair in
-                    // do not include already visited valves / valves we don't have time to travel to
-                    guard let valve = valves[pair.key] else { return false }
-                    let travelTime = current.neighbors[valve.name]
-                    if let travelTime = travelTime {
-                        return (!mutableVisited.contains(valve) && travelTime < maxTime - time)
-                    } else {
-                        return false
-                    }
-                }
-                .compactMap { pair -> Int in
-                    guard let neighbor = valves[pair.key], let travelTime = current.neighbors[neighbor.name] else { return 0 }
-                    return maxFlow(current: neighbor, maxTime: maxTime, time: time + travelTime + 1, visited: mutableVisited, addElephant: addElephant)
-                }
-                .map { result in
-                    if addElephant {
-                        let elephant = maxFlow(current: self.start, maxTime: maxTime, visited: mutableVisited)
-                        return max(result, elephant)
-                    } else {
-                        return result
-                    }
-                }
-                .max() ?? 0
+            // cache result
+            cache[state] = flow
 
-            // cache maximum additional flow current state
-            cache[state] = maxAdditionalFlow
+            return flow
+        }
 
-            return flowFromCurrent + maxAdditionalFlow
+        func flowWithElephantHelper() -> Int {
+            // bitmask corresponding to all nonEmpty valves being open
+            let allOpenMask = (1 << nonEmptyIndices.count) - 1
+            var flow = 0
+            for bits in 0...((allOpenMask + 1) / 2) {
+                // try all disjoint pairs of valves, take max of the result
+                flow = max(flow,  maxFlow(valve: start, time: 26, mask: bits) + maxFlow(valve: start, time: 26, mask: allOpenMask ^ bits))
+            }
+
+            return flow
         }
     }
 
@@ -96,20 +100,21 @@ struct Dec162022: ParsableCommand {
 
     mutating func run() throws {
         let input  = try String(contentsOfFile: path)
-        let start = Date()
-        defer { print("Part 1 complete in \(Date().timeIntervalSince(start)) seconds") }
-
         let valves = createDataStructures(input.components(separatedBy: .newlines).filter { !$0.isEmpty })
 
+        var start = Date()
         let volcanoEscape = VolcanoEscape(valves: valves)
-        let part1 = volcanoEscape.maxFlow(current: volcanoEscape.start)
+        let part1 = volcanoEscape.maxFlow(valve: volcanoEscape.start, time: 30, mask: 0)
         print("Part 1 Max Flow: \(part1)")
+        print("Part 1 complete in \(Date().timeIntervalSince(start)) seconds")
 
-        let part2 = volcanoEscape.maxFlow(current: volcanoEscape.start, maxTime: 26, addElephant: true)
-        print("Part 2 Max Flow: \(part2)")
+        start = Date()
+        let part2 = volcanoEscape.flowWithElephantHelper()
+        print("Part 2 Flow: \(part2)")
+        print("Part 1 complete in \(Date().timeIntervalSince(start)) seconds")
     }
 
-    // MARK: - Helpers
+    // MARK: - Parsing input
 
     func createDataStructures(_ input: [String]) -> [String : Valve] {
         // dict containing a mapping of valve name to index
