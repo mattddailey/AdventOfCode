@@ -58,7 +58,7 @@ struct Dec172022: ParsableCommand, AOCDay {
         var maxHeight = 0
         var occupied = Set<Point>([Point(x: 1, y: 0), Point(x: 2, y: 0), Point(x: 3, y: 0), Point(x: 4, y: 0),
                                                                   Point(x: 5, y: 0), Point(x: 6, y: 0), Point(x: 7, y: 0)
-                                                                ])
+                                  ])
 
         // constants defining the edges of the chamber
         let leftEdge = 0
@@ -76,6 +76,8 @@ struct Dec172022: ParsableCommand, AOCDay {
         }
 
         func dropRocks(for directions: [Direction]) -> Int {
+            var advanced = false
+            var heightOffset = 0
             var rock = Rock.horizontal
             var points = rock.points(startY: maxHeight + 4)
 
@@ -95,23 +97,33 @@ struct Dec172022: ParsableCommand, AOCDay {
                     points = dropped
                 // came to rest
                 } else {
-                    // let state = State(directionIndex: directionCounter % directions.count, left: points.left, right: points.right, rock: rock)
-                    // if let (rockCount, height) = seen[state] {
-                    //     print("repeat at height: \(maxHeight). previously seen at \(height)")
-                    //     // print("Total rocks dropped: \(rockCounter)")
-                    //     // return 0
-                    // }
                     occupied = occupied.union(points)
-                    maxHeight = max(maxHeight, points.maxHeight)
-                    points = rock.points(startY: maxHeight + 4)
                     rockCounter += 1
-                    // seen[state] = (rockCounter, maxHeight)
+                    maxHeight = max(maxHeight, points.maxHeight)
+                    
+                    let state = State(directionIndex: directionCounter % directions.count, left: points.left, right: points.right, rock: rock)
+                    if let (rockCount, height) = seen[state],!advanced {
+                        // duplicate state found; need to determine an offset, and advance rockCounter as much as possible
+                        let remainingRocks = numberOfRocksToDrop - rockCounter
+                        let repeatedRocksCount = rockCounter - rockCount
+                        let numberOfRepeatedCyclesRemaining = remainingRocks / repeatedRocksCount
+
+                        heightOffset = numberOfRepeatedCyclesRemaining * (maxHeight - height)
+                        rockCounter += (repeatedRocksCount * numberOfRepeatedCyclesRemaining)
+                        advanced = true
+                    }
+
+                    // cache value, for finding a duplicate pattern
+                    seen[state] = (rockCounter, maxHeight)
+
+                    //advance to next rock, get new points
                     rock = rock.next
+                    points = rock.points(startY: maxHeight + 4)
                 }
                 directionCounter += 1
             }
 
-            return maxHeight
+            return maxHeight + heightOffset
         }
 
         private func horizontalShift(_ points: Set<Point>, _ direction: Direction) -> Set<Point> {
@@ -132,7 +144,7 @@ struct Dec172022: ParsableCommand, AOCDay {
         let lines  = try String(contentsOfFile: path).components(separatedBy: .newlines)
 
         print("Part 1: \(part1(lines))")
-        // print("Part 2: \(part2(lines))")
+        print("Part 2: \(part2(lines))")
     }
 
     // MARK: - Part 1
