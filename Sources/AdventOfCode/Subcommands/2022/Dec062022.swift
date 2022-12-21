@@ -20,12 +20,26 @@ struct Dec062022: ParsableCommand, AOCDay {
     // MARK: - Part 1
 
     func part1(_ lines: [String]) -> Int {
-        return 0
+        return locateMarker(in: lines[0], markerSize: 4)
     }
 
     // MARK: - Part 2
 
     func part2(_ lines: [String]) -> Int {
-        return 0
+        return locateMarker(in: lines[0], markerSize: 14)
     }
+
+    func locateMarker(in dataStream: String, markerSize: Int) -> Int {
+        var index = 0
+        while index+markerSize < dataStream.count {
+            let slidingGroup = dataStream[index..<index+markerSize]
+            var marker = Set<Character>()
+            let duplicates = slidingGroup.filter { !marker.insert($0).inserted }
+            if duplicates.isEmpty {
+                return index+markerSize
+            }
+            index += 1
+        }
+        return index+markerSize
+    }   
 }
