@@ -43,7 +43,6 @@ struct Dec182022: ParsableCommand, AOCDay {
                     guard !visited.contains(point) && !lavaPoints.contains(point) else { continue }
                     queue.enqueue(point)
                     visited.insert(point)
-                    
                 }
 
                 surfaceArea += connectedPoints.intersection(lavaPoints).count

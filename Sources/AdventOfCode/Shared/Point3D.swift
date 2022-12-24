@@ -21,6 +21,4 @@ extension Point3D: CustomStringConvertible {
     var description: String {
         return ("x: \(x) y: \(y) z: \(z)")
     }
-
-
 }
