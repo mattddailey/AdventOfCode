@@ -33,7 +33,7 @@ struct Dec192022: ParsableCommand, AOCDay {
     mutating func run() throws {
         let lines  = try String(contentsOfFile: path).components(separatedBy: .newlines)
 
-        // print("Part 1: \(part1(lines))")
+        print("Part 1: \(part1(lines))")
         print("Part 2: \(part2(lines))")
     }
 
