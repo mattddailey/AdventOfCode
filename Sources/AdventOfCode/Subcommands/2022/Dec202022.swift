@@ -52,7 +52,6 @@ struct Dec202022: ParsableCommand, AOCDay {
         var mutableList = linkedList
         // swap nodes as needed
         for _ in 0..<iterations {
-            // print(linkedList)
             for node in nodes {
                 var swapCount = abs(node.value) % (linkedList.length - 1)
                 for _ in 0..<swapCount {
@@ -61,7 +60,7 @@ struct Dec202022: ParsableCommand, AOCDay {
             }
         }
         
-        // set zero index to the front
+        // set zero index to the front, to leverage nodeAtIndex(_:) function 
         if let zeroIndex = mutableList.zeroIndex {
             mutableList.front = mutableList.nodeAtIndex(zeroIndex)
         }
@@ -71,7 +70,7 @@ struct Dec202022: ParsableCommand, AOCDay {
            let y = mutableList.nodeAtIndex(2000)?.value,
            let z = mutableList.nodeAtIndex(3000)?.value {
             return x + y + z
-           }
+        }
 
         // fallback
         return 0
@@ -79,6 +78,7 @@ struct Dec202022: ParsableCommand, AOCDay {
 }
 
 fileprivate extension DoublyLinkedList where T == Int {
+    // finds index of 0 value in linked list
     var zeroIndex: Int? {
         var current = self.front
         var index = 0
@@ -100,14 +100,6 @@ fileprivate extension Node {
         self.next = prev
         self.prev = prev?.prev
         prev?.prev = self
-
-        if prev == list.back {
-            list.front = prev?.next
-        } else if prev == list.front {
-            list.back = self
-        } else if self == list.back {
-            list.back = self.next
-        }
     }
 
     func swapForward(_ list: inout DoublyLinkedList<T>) {
@@ -119,14 +111,6 @@ fileprivate extension Node {
         self.next = next?.next
         self.prev = next
         next?.next = self
-
-        if self == list.front {
-            list.front = next
-        } else if next == list.front {
-            list.back = next?.prev
-        } else if next == list.back {
-            list.back = self
-        }
     }
 }
 
