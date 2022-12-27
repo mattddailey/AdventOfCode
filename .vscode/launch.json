@@ -36,5 +36,14 @@
             "cwd": "${workspaceFolder:AdventOfCode}",
             "preLaunchTask": "swift: Build Debug AdventOfCode"
         },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Dec 20 2022",
+            "program": "${workspaceFolder:AdventOfCode}/.build/debug/AdventOfCode",
+            "args": ["dec202022"],
+            "cwd": "${workspaceFolder:AdventOfCode}",
+            "preLaunchTask": "swift: Build Debug AdventOfCode"
+        },
     ]
 }
