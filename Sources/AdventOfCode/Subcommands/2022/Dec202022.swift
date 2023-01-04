@@ -53,7 +53,7 @@ struct Dec202022: ParsableCommand, AOCDay {
         // swap nodes as needed
         for _ in 0..<iterations {
             for node in nodes {
-                var swapCount = abs(node.value) % (linkedList.length - 1)
+                let swapCount = abs(node.value) % (linkedList.length - 1)
                 for _ in 0..<swapCount {
                     node.value < 0 ? node.swapBack(&mutableList) : node.swapForward(&mutableList)
                 }
