@@ -1,8 +1,8 @@
 import ArgumentParser
 import Foundation
 
-struct Dec202022: AsyncParsableCommand, AOCDay {
-    static let configuration = CommandConfiguration(abstract: "Advent of Code - 2022 December 20", version: "1.0.0")
+struct Dec202022: ParsableCommand, AOCDay {
+    static let configuration = CommandConfiguration(abstract: "Advent of Code - Grove Positioning System", version: "1.0.0")
 
     // MARK: - Lifecycle
 
