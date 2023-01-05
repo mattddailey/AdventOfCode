@@ -39,12 +39,13 @@ struct Dec222022: ParsableCommand, AOCDay {
     // MARK: - Part 2
 
     func part2(_ lines: [String]) -> Int {
-        return 0
+        let (map, moves) = parseInput(lines)
+        return determinePassword(map, moves, is3D: true)
     }
 
     // MARK: Shared
 
-    func determinePassword(_ map: [[Land]], _ moves: [Move]) -> Int {
+    func determinePassword(_ map: [[Land]], _ moves: [Move], is3D: Bool = false) -> Int {
         guard let landOffset = map[0].leftMostLandIndex else { fatalError("Could not find non-whitespace land in first row of map") }
 
         var current = Point(x: landOffset, y: 0)
@@ -54,8 +55,16 @@ struct Dec222022: ParsableCommand, AOCDay {
             case .amount(var remaining):
                 while remaining > 0  {
                     remaining -= 1
-                    let next = makeMove(current, direction, map)
-                    guard map[safe: next.y]?[safe: next.x] != .wall else { break }
+                    let next: Point
+                    switch direction {
+                        case .north: (next, direction) = map.northOf(current, is3D: is3D)
+                        case .south: (next, direction) = map.southOf(current, is3D: is3D)
+                        case .east:  (next, direction) = map.eastOf(current, is3D: is3D)
+                        case .west:  (next, direction) = map.westOf(current, is3D: is3D)
+                    }
+                    guard map[safe: next.y]?[safe: next.x] != .wall else { 
+                        break 
+                    }
                     current = next
                 }
             case .left:
@@ -66,15 +75,6 @@ struct Dec222022: ParsableCommand, AOCDay {
         }
 
         return (1000 * (current.y + 1)) + (4 * (current.x + 1)) + direction.rawValue
-    }
-
-    func makeMove(_ point: Point, _ direction: Direction, _ map: [[Land]]) -> Point {
-        switch direction {
-            case .north: return map.northOf(point)
-            case .south: return map.southOf(point)
-            case .east:  return map.eastOf(point)
-            case .west:  return map.westOf(point)
-        }
     }
 
     func parseInput(_ lines: [String]) -> ([[Land]], [Move]) {
@@ -111,7 +111,6 @@ struct Dec222022: ParsableCommand, AOCDay {
                 directions[index] == "L" ? moves.append(.left) : moves.append(.right)
             }
         }
-
         return (map, moves)
     }
 
@@ -129,50 +128,95 @@ extension Array where Element == Dec222022.Land {
 }
 
 extension Array where Element == [Dec222022.Land] {
-    func northOf(_ point: Point) -> Point {
+    func northOf(_ point: Point, is3D: Bool) -> (Point, Direction) {
         let next = self[safe: point.y - 1]?[safe: point.x]
         if next != nil && next != .whitespace {
-            return Point(x: point.x, y: point.y - 1)
+            return (Point(x: point.x, y: point.y - 1), .north)
+
+        } else if is3D, (0...49).contains(point.x) {
+            return (Point(x: 50, y: 50 + point.x), .east)
+
+        } else if is3D, (50...99).contains(point.x) {
+            return (Point(x: 0, y: point.x + 100), .east)
+         
+        } else if is3D, (100...149).contains(point.x) {  
+            return (Point(x: point.x - 100, y: 199), .north)
+
         } else if let y = bottomMostLandIndex(column: point.x)   {
-            return Point(x: point.x, y: y)
+            return (Point(x: point.x, y: y), .north)
         } else {
             fatalError()
         }
     }
 
-    func southOf(_ point: Point) -> Point {
+    func southOf(_ point: Point, is3D: Bool) -> (Point, Direction) {
         let next = self[safe: point.y + 1]?[safe: point.x]
         if next != nil && next != .whitespace {
-            return Point(x: point.x, y: point.y + 1)
+            return (Point(x: point.x, y: point.y + 1), .south)
+
+        } else if is3D, (0...49).contains(point.x) {
+            return (Point(x: 100 + point.x, y: 0), .south)
+
+        } else if is3D, (50...99).contains(point.x) {
+            return (Point(x: 49, y: point.x + 100), .west)
+
+        } else if is3D, (100...149).contains(point.x) {
+            return (Point(x: 99, y: point.x - 50), .west)
+
         } else if let y = topMostLandIndex(column: point.x)   {
-            return Point(x: point.x, y: y)
+            return (Point(x: point.x, y: y), .south)
         } else {
             fatalError()
         }
     }
 
-    func eastOf(_ point: Point) -> Point {
+    func eastOf(_ point: Point, is3D: Bool) -> (Point, Direction) {
         let next = self[safe: point.y]?[safe: point.x + 1]
         if next != nil && next != .whitespace {
-            return Point(x: point.x + 1, y: point.y)
+            return (Point(x: point.x + 1, y: point.y), .east)
+
+        } else if is3D, (0...49).contains(point.y) {
+            return (Point(x: 99, y: 149 - point.y), .west)
+
+        } else if is3D, (50...99).contains(point.y) {
+            return (Point(x: point.y + 50, y: 49), .north)
+
+        } else if is3D, (100...149).contains(point.y) {
+            return (Point(x: 149, y: 149 - point.y), .west)
+        
+        } else if is3D, (150...199).contains(point.y) {
+            return (Point(x: point.y - 100, y: 149), .north)
+
         } else if let x = self[safe: point.y]?.leftMostLandIndex   {
-            return Point(x: x, y: point.y)
+            return (Point(x: x, y: point.y), .east)
         } else {
             fatalError()
         }
     }
 
-    func westOf(_ point: Point) -> Point {
+    func westOf(_ point: Point, is3D: Bool) -> (Point, Direction) {
         let next = self[safe: point.y]?[safe: point.x - 1]
         if next != nil && next != .whitespace {
-            return Point(x: point.x - 1, y: point.y)
+            return (Point(x: point.x - 1, y: point.y), .west)
+
+        } else if is3D, (0...49).contains(point.y) {
+            return (Point(x: 0, y: 149 - point.y), .east)
+
+        } else if is3D, (50...99).contains(point.y) {
+            return(Point(x: point.y - 50, y: 100), .south)
+
+        } else if is3D, (100...149).contains(point.y) {
+            return (Point(x: 50, y: 149 - point.y), .east)
+        
+        } else if is3D, (150...199).contains(point.y) {
+            return (Point(x: point.y - 100, y: 0), .south)
+
         } else if let x = self[safe: point.y]?.rightMostLandIndex   {
-            return Point(x: x, y: point.y)
+            return (Point(x: x, y: point.y), .west)
         } else {
             fatalError()
         }
     }
-
 
     func topMostLandIndex(column x: Int) -> Int? {
         self.firstIndex(where: { 
