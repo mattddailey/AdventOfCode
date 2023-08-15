@@ -1,18 +1,16 @@
 import ArgumentParser
+import Foundation
 
-struct Dec202022: ParsableCommand, AOCDay {
+struct Dec202022: AsyncParsableCommand, AOCDay {
     static let configuration = CommandConfiguration(abstract: "Advent of Code - 2022 December 20", version: "1.0.0")
-
-    @Option(name: .shortAndLong, help: "Input file path")
-    var path: String = "Input/dec202022.txt"
 
     // MARK: - Lifecycle
 
-    mutating func run() throws {
-        let lines  = try String(contentsOfFile: path).components(separatedBy: .newlines)
+    mutating func run() async throws {
+        let input = try await Input(day: 20, year: 2022)
 
-        print("Part 1: \(part1(lines))")
-        print("Part 2: \(part2(lines))")
+        print("Part 1: \(part1(input.asLines))")
+        print("Part 2: \(part2(input.asLines))")
     }
 
     // MARK: - Part 1
