@@ -1,6 +1,6 @@
 import ArgumentParser
 
-struct Dec112022: ParsableCommand, AOCDay {
+struct Dec112022: ParsableCommand, AOCDayProtocol {
     static let configuration = CommandConfiguration(abstract: "Advent of Code - 2022 December 11", version: "1.0.0")
 
     @Option(name: .shortAndLong, help: "Input file path")

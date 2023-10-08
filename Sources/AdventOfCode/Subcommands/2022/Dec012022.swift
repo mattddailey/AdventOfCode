@@ -1,18 +1,8 @@
 import ArgumentParser
+import AOCDayPackage
 
-struct Dec012022: ParsableCommand, AOCDay {
-    static let configuration = CommandConfiguration(abstract: "Advent of Code - 2022 December 01", version: "1.0.0")
-
-    @Option(name: .shortAndLong, help: "Input file path")
-    var path: String = "Input/dec012022.txt"
-
-    mutating func run() throws {
-        let lines  = try String(contentsOfFile: path).components(separatedBy: .newlines)
-
-        print("Part 1: \(part1(lines))")
-        print("Part 2: \(part2(lines))")
-    }
-
+@AOCDay
+struct Dec012022: AsyncParsableCommand, AOCDayProtocol {
     func part1(_ lines: [String]) -> Int {
         let maxCalories = caloriesPerElf(lines)
             .max() ?? 0

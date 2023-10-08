@@ -1,6 +1,7 @@
 import ArgumentParser
+import AOCDayPackage
 
-protocol AOCDay {
+protocol AOCDayProtocol {
     func part1(_ lines: [String]) -> Int
     func part2(_ lines: [String]) -> Int
 }

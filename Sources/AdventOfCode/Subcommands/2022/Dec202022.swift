@@ -1,20 +1,9 @@
 import ArgumentParser
 import Foundation
+import AOCDayPackage
 
-struct Dec202022: ParsableCommand, AOCDay {
-    static let configuration = CommandConfiguration(abstract: "Advent of Code - Grove Positioning System", version: "1.0.0")
-
-    // MARK: - Lifecycle
-
-    mutating func run() async throws {
-        let input = try await Input(day: 20, year: 2022)
-
-        print("Part 1: \(part1(input.asLines))")
-        print("Part 2: \(part2(input.asLines))")
-    }
-
-    // MARK: - Part 1
-
+@AOCDay
+struct Dec202022: AsyncParsableCommand, AOCDayProtocol {
     func part1(_ lines: [String]) -> Int {
         // create circular doubly linked list data structure
         let linkedList = DoublyLinkedList<Int>()

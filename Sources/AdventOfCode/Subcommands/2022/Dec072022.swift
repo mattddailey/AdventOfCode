@@ -3,7 +3,7 @@ import ArgumentParser
 let ELFDEVICESPACE = 70000000
 let UPDATESIZE = 30000000
 
-struct Dec072022: ParsableCommand, AOCDay {
+struct Dec072022: ParsableCommand, AOCDayProtocol {
     static let configuration = CommandConfiguration(abstract: "Advent of Code - No Space Left On Device", version: "1.0.0")
 
     @Option(name: .shortAndLong, help: "Input file path")
