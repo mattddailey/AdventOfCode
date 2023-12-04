@@ -1,5 +1,5 @@
 //
-//  AdventOfCode2023.swift
+//  AdventOfCode.swift
 //
 //
 //  Created by Matt Dailey on 11/30/23.
@@ -9,7 +9,7 @@ import ArgumentParser
 
 @main
 @available(macOS 10.15, macCatalyst 13, iOS 13, tvOS 13, watchOS 6, *)
-struct AdventOfCode2023: AsyncParsableCommand {
+struct AdventOfCode: AsyncParsableCommand {
   static let configuration = CommandConfiguration(
     abstract: "Advent of Code 2023",
     subcommands: [

@@ -11,7 +11,7 @@ let package = Package(
     ],
     targets: [
         .executableTarget(
-            name: "AdventOfCode2023",
+            name: "AdventOfCode",
             dependencies: [
               .product(name: "Algorithms", package: "swift-algorithms"),
               .product(name: "ArgumentParser", package: "swift-argument-parser")
