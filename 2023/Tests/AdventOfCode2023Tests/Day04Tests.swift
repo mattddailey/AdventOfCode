@@ -1,5 +1,5 @@
 import XCTest
-@testable import AdventOfCode
+@testable import AdventOfCode2023
 
 final class Day04Tests: XCTestCase {
   func testDay02Part1() throws {

@@ -5,9 +5,10 @@
 //
 
 import ArgumentParser
+import AdventOfCodeShared
 import Foundation
 
-struct Day04: AOCDay, AsyncParsableCommand {
+struct Day04: AdventOfCodeDay, AsyncParsableCommand {
   static let configuration = CommandConfiguration(abstract: "Advent of Code - December 04, 2023 - Scratchcards")
   
   func run() async throws {
