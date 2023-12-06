@@ -39,12 +39,12 @@ final class Day05Tests: XCTestCase {
   56 93 4
   """
   
-  func testDay02Part1() throws {
+  func testDay05Part1() throws {
     let day = Day05()
     XCTAssertEqual(day.part1(Self.input) as? Int, 35)
   }
     
-  func testDay02Part2() throws {
+  func testDay05Part2() throws {
     let day = Day05()
     XCTAssertEqual(day.part2(Self.input) as? Int, 46)
   }
