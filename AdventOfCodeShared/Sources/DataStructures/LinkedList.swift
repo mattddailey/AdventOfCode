@@ -9,8 +9,8 @@ import Foundation
 
 public class LinkedList<Value> {
 
-  var head: Node<Value>?
-  var tail: Node<Value>?
+  public var head: Node<Value>?
+  public var tail: Node<Value>?
   
   public init() {}
 

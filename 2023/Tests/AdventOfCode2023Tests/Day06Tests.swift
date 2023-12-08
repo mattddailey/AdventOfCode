@@ -8,12 +8,12 @@ final class Day06Tests: XCTestCase {
   Distance:  9  40  200
   """
   
-  func testDay05Part1() throws {
+  func testDay06Part1() throws {
     let day = Day06()
     XCTAssertEqual(day.part1(Self.input) as? Int, 288)
   }
     
-  func testDay05Part2() throws {
+  func testDay06Part2() throws {
     let day = Day06()
     XCTAssertEqual(day.part2(Self.input) as? Int, 71503)
   }
