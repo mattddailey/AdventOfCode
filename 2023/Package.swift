@@ -5,6 +5,7 @@ import PackageDescription
 
 let package = Package(
     name: "AdventOfCode2023",
+    platforms: [.macOS(.v13)],
     dependencies: [
       .package(url: "https://github.com/apple/swift-algorithms", from: "1.2.0"),
       .package(url: "https://github.com/apple/swift-argument-parser", from: "1.2.0"),
@@ -28,3 +29,11 @@ let package = Package(
         ),
     ]
 )
+
+for target in package.targets {
+    target.swiftSettings = target.swiftSettings ?? []
+
+    target.swiftSettings?.append(contentsOf: [
+        .enableUpcomingFeature("BareSlashRegexLiterals")
+    ])
+}

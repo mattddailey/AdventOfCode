@@ -8,6 +8,6 @@
 import Foundation
 
 public protocol AdventOfCodeDay {
-  func part1(_ input: String) -> CustomStringConvertible
-  func part2(_ input: String) -> CustomStringConvertible
+  func part1(_ input: String) throws -> CustomStringConvertible
+  func part2(_ input: String) throws -> CustomStringConvertible
 }

@@ -9,7 +9,7 @@ import AdventOfCodeShared
 import Foundation
 
 struct Day07: AdventOfCodeDay, AsyncParsableCommand {
-  static let configuration = CommandConfiguration(abstract: "Advent of Code - December 06, 2023 - You Give A Seed A Fertilizer")
+  static let configuration = CommandConfiguration(abstract: "Advent of Code - December 07, 2023 - Camel Cards")
   
   func run() async throws {
     print("Part 1: \(part1(""))")
