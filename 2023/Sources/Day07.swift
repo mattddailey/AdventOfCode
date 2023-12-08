@@ -17,23 +17,84 @@ struct Day07: AdventOfCodeDay, AsyncParsableCommand {
   }
   
   func part1(_ input: String) -> CustomStringConvertible {
+    determineWinnings(input, part2: false)
+  }
+  
+  func part2(_ input: String) -> CustomStringConvertible {
+    determineWinnings(input, part2: true)
+  }
+  
+  private func determineWinnings(_ input: String, part2: Bool) -> Int {
     input
       .components(separatedBy: .newlines)
-      .compactMap { Hand($0) }
+      .compactMap { hand($0, part2: part2) }
       .sorted()
       .enumerated()
       .map { index, hand in (index+1) * hand.bid }
       .reduce(0, +)
   }
   
-  func part2(_ input: String) -> CustomStringConvertible {
-    input
-      .components(separatedBy: .newlines)
-      .compactMap { Hand($0, jValue: 0) }
-      .sorted()
-      .enumerated()
-      .map { index, hand in (index+1) * hand.bid }
-      .reduce(0, +)
+  private func hand(_ input: String, part2: Bool) -> Hand? {
+    let Cards: [Character: Int] = [
+      "2": 2,
+      "3": 3,
+      "4": 4,
+      "5": 5,
+      "6": 6,
+      "7": 7,
+      "8": 8,
+      "9": 9,
+      "T": 10,
+      "J": part2 ? 0 : 11,
+      "Q": 12,
+      "K": 13,
+      "A": 14
+    ]
+    
+    let components = input.components(separatedBy: .whitespaces)
+    
+    guard components.count == 2, let cardsComponent = components.first, let bid = Int(components.last ?? "") else {
+      return nil
+    }
+    
+    let cards = cardsComponent
+      .compactMap { Cards[$0] }
+    
+    guard cards.count == 5 else {
+      return nil
+    }
+    
+    return Hand(cards: cards, bid: bid, type: bestHand(cards, part2: part2))
+  }
+  
+  private func bestHand(_ cards: [Int], part2: Bool) -> HandType {
+    var cardCounts: [Int: Int] = [:]
+    for card in cards {
+      cardCounts[card] = (cardCounts[card] ?? 0) + 1
+    }
+    
+    let nonJs = cards.filter { $0 != 0 }
+    
+    guard part2, cardCounts[0] != nil, !nonJs.isEmpty else {
+      return HandType(cards)
+    }
+
+    var handTypes: [HandType] = []
+    
+    for nonJ in nonJs {
+      let modifiedCards = cards
+        .map { card in
+          guard card == 0 else {
+            return card
+          }
+          
+          return nonJ
+        }
+      
+      handTypes.append(HandType(modifiedCards))
+    }
+    
+    return handTypes.max(by: { lhs, rhs in lhs.rawValue < rhs.rawValue })!
   }
 }
 
@@ -57,83 +118,6 @@ fileprivate struct Hand: Comparable {
   let cards: [Int]
   let bid: Int
   let type: HandType
-  private let jValue: Int
-  
-  init?(_ input: String, jValue: Int = 11) {
-    let Cards: [Character: Int] = [
-      "2": 2,
-      "3": 3,
-      "4": 4,
-      "5": 5,
-      "6": 6,
-      "7": 7,
-      "8": 8,
-      "9": 9,
-      "T": 10,
-      "J": jValue,
-      "Q": 12,
-      "K": 13,
-      "A": 14
-    ]
-    
-    let components = input.components(separatedBy: .whitespaces)
-    
-    guard components.count == 2, let cardsComponent = components.first, let bid = Int(components.last ?? "") else {
-      return nil
-    }
-    
-    let cards = cardsComponent
-      .compactMap { Cards[$0] }
-    
-    guard cards.count == 5 else {
-      return nil
-    }
-    
-    self.cards = cards
-    self.bid = bid
-    self.type = bestHand(cards, jValue: jValue)
-    self.jValue = jValue
-  }
-}
-
-fileprivate func bestHand(_ cards: [Int], jValue: Int) -> HandType {
-  guard jValue == 0 else {
-    return HandType(cards, jValue: jValue)
-  }
-  
-  var cardCounts: [Int: Int] = [:]
-  for card in cards {
-    cardCounts[card] = (cardCounts[card] ?? 0) + 1
-  }
-
-  let jCount = cardCounts[jValue] ?? 0
-  
-  guard jCount != 0 else {
-    return HandType(cards, jValue: jValue)
-  }
-  
-  let nonJs = cards.filter { $0 != 0 }
-  
-  var handTypes: [HandType] = []
-  
-  guard !nonJs.isEmpty else {
-    return HandType(cards, jValue: jValue)
-  }
-  
-  for nonJ in nonJs {
-    let modifiedCards = cards
-      .map { card in
-        guard card == 0 else {
-          return card
-        }
-        
-        return nonJ
-      }
-    
-    handTypes.append(HandType(modifiedCards, jValue: jValue))
-  }
-  
-  return handTypes.max(by: { lhs, rhs in lhs.rawValue < rhs.rawValue })!
 }
 
 fileprivate enum HandType: Int {
@@ -145,7 +129,7 @@ fileprivate enum HandType: Int {
   case OnePair = 2
   case HighCard = 1
   
-  init(_ cards: [Int], jValue: Int) {
+  init(_ cards: [Int]) {
     var cardCounts: [Int: Int] = [:]
     for card in cards {
       cardCounts[card] = (cardCounts[card] ?? 0) + 1
