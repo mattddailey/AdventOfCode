@@ -8,6 +8,10 @@
 import Foundation
 
 public extension String {
+  var asArray: [Character] {
+    self.map { $0 }
+  }
+  
   var asInt: Int {
     Int(
       self.replacingOccurrences(
