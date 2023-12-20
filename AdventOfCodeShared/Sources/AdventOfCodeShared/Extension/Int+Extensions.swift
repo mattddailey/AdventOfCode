@@ -8,7 +8,7 @@
 import Foundation
 
 public extension Array where Element == Int {
-  public var leastCommonMultiple: Int {
+  var leastCommonMultiple: Int {
     self.reduce(1, leastCommonMultiple)
   }
   
