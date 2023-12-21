@@ -10,7 +10,11 @@ let package = Package(
     products: [
         .library(
             name: "AdventOfCodeShared",
-            targets: ["AdventOfCodeShared"]),
+            targets: [
+              "AdventOfCodeShared",
+              "AOCDay"
+            ]
+        ),
     ],
     dependencies: [
         // Depend on the latest Swift 5.9 prerelease of SwiftSyntax

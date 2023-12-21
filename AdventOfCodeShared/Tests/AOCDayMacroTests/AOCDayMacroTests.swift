@@ -22,10 +22,10 @@ final class AOCDayMacroTests: XCTestCase {
             static let configuration = CommandConfiguration(abstract: "Advent of Code - December 20, 2022")
 
             mutating func run() async throws {
-              let input = try await Input(day: 20, year: 2022)
+              let input = try await inputFor(day: 20, year: 2022)
 
-              print("Part 1: \\(part1(input.asLines))")
-              print("Part 2: \\(part2(input.asLines))")
+              print("Part 1: \\(part1(input))")
+              print("Part 2: \\(part2(input))")
             }
         }
         """,
@@ -47,10 +47,10 @@ final class AOCDayMacroTests: XCTestCase {
             static let configuration = CommandConfiguration(abstract: "Advent of Code - December 20, 2022 - DayName")
 
             mutating func run() async throws {
-              let input = try await Input(day: 20, year: 2022)
+              let input = try await inputFor(day: 20, year: 2022)
 
-              print("Part 1: \\(part1(input.asLines))")
-              print("Part 2: \\(part2(input.asLines))")
+              print("Part 1: \\(part1(input))")
+              print("Part 2: \\(part2(input))")
             }
         }
         """,

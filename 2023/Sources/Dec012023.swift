@@ -7,16 +7,11 @@
 
 import ArgumentParser
 import AdventOfCodeShared
+import AOCDay
 import Foundation
 
-struct Day01: AdventOfCodeDay, AsyncParsableCommand {
-  static let configuration = CommandConfiguration(abstract: "Advent of Code - December 01, 2023 - Trebuchet?!")
-  
-  func run() async throws {
-    print("Part 1: \(part1(""))")
-    print("Part 2: \(part2(""))")
-  }
-  
+@AOCDay(name: "Trebuchet?!")
+struct Dec012023: AdventOfCodeDay, AsyncParsableCommand {
   func part1(_ input: String) -> CustomStringConvertible {
     input
       .filter { $0.isWholeNumber || $0.isNewline }
