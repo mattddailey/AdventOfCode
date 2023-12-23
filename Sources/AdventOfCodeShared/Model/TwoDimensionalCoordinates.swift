@@ -16,3 +16,17 @@ public struct TwoDimensionalCoordinates: Hashable {
     self.y = y
   }
 }
+
+public extension TwoDimensionalCoordinates {
+  var surroundingCoordinates: Set<TwoDimensionalCoordinates> {
+    var surroundingCoordinates = Set<TwoDimensionalCoordinates>()
+    
+    for y in (self.y - 1)...(self.y + 1) {
+      for x in (self.x - 1)...(self.x + 1) {
+        surroundingCoordinates.insert(TwoDimensionalCoordinates(x: x, y: y))
+      }
+    }
+    
+    return surroundingCoordinates
+  }
+}

@@ -12,6 +12,11 @@ public extension String {
     self.map { $0 }
   }
   
+  var asTwoDimArray: [[Character]] {
+    components(separatedBy: .newlines)
+      .map(\.asArray)
+  }
+  
   var asInt: Int {
     Int(
       self.replacingOccurrences(
