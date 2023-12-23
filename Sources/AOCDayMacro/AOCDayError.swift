@@ -1,6 +1,6 @@
 //
 //  AOCDayError.swift
-//  
+//
 //
 //  Created by Matt Dailey on 12/20/23.
 //

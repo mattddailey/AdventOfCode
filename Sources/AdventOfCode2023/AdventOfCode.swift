@@ -13,9 +13,7 @@ struct AdventOfCode2023: AsyncParsableCommand {
   static let configuration = CommandConfiguration(
     abstract: "Advent of Code 2023",
     subcommands: [
-      Dec012023.self,
-      Day02.self,
-      Day04.self
+      Dec012023.self
     ]
   )
 }
