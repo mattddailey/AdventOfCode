@@ -1,7 +1,7 @@
 import XCTest
 @testable import AdventOfCode2023
 
-final class Day08Tests: XCTestCase {
+final class Dec08Tests: XCTestCase {
   static let part1Input =
   """
   LLR
@@ -25,13 +25,13 @@ final class Day08Tests: XCTestCase {
   XXX = (XXX, XXX)
   """
   
-  func testDay08Part1() throws {
-    let day = Day08()
+  func testDec08Part1() throws {
+    let day = Dec082023()
     XCTAssertEqual(try day.part1(Self.part1Input) as? Int, 6)
   }
     
-  func testDay08Part2() throws {
-    let day = Day08()
+  func testDec08Part2() throws {
+    let day = Dec082023()
     XCTAssertEqual(try day.part2(Self.part2Input) as? Int, 6)
   }
 }

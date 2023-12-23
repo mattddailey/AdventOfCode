@@ -1,12 +1,12 @@
 import XCTest
 @testable import AdventOfCode2023
 
-final class Day04Tests: XCTestCase {
-  func testDay04Part1() throws {
+final class Dec04Tests: XCTestCase {
+  func testDec04Part1() throws {
     let day = Dec042023()
     
     XCTAssertEqual(
-      day.part1(
+      try day.part1(
         """
         Card 1: 41 48 83 86 17 | 83 86  6 31 17  9 48 53
         Card 2: 13 32 20 16 61 | 61 30 68 82 17 32 24 19
@@ -20,11 +20,11 @@ final class Day04Tests: XCTestCase {
     )
   }
     
-  func testDay04Part2() throws {
+  func testDec04Part2() throws {
     let day = Dec042023()
     
     XCTAssertEqual(
-      day.part2(
+      try day.part2(
         """
         Card 1: 41 48 83 86 17 | 83 86  6 31 17  9 48 53
         Card 2: 13 32 20 16 61 | 61 30 68 82 17 32 24 19

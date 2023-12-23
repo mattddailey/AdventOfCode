@@ -1,4 +1,4 @@
-//  Day07.swift
+//  Dec072023.swift
 //
 //
 //  Created by Matt Dailey on 12/07/23.
@@ -6,21 +6,16 @@
 
 import ArgumentParser
 import AdventOfCodeShared
+import AOCDay
 import Foundation
 
-struct Day07: AdventOfCodeDay, AsyncParsableCommand {
-  static let configuration = CommandConfiguration(abstract: "Advent of Code - December 07, 2023 - Camel Cards")
-  
-  func run() async throws {
-    print("Part 1: \(part1(""))")
-    print("Part 2: \(part2(""))")
-  }
-  
-  func part1(_ input: String) -> CustomStringConvertible {
+@AOCDay(name: "Camel Cards")
+struct Dec072023: AdventOfCodeDay, AsyncParsableCommand {
+  func part1(_ input: String) throws -> CustomStringConvertible {
     determineWinnings(input, part2: false)
   }
   
-  func part2(_ input: String) -> CustomStringConvertible {
+  func part2(_ input: String) throws -> CustomStringConvertible {
     determineWinnings(input, part2: true)
   }
   

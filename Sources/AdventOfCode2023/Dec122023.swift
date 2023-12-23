@@ -1,5 +1,5 @@
 //
-//  Day12.swift
+//  Dec122023.swift
 //
 //
 //  Created by Matt Dailey on 12/12/23.
@@ -7,18 +7,13 @@
 
 import ArgumentParser
 import AdventOfCodeShared
+import AOCDay
 import Foundation
 
-struct Day12: AdventOfCodeDay, AsyncParsableCommand {
-  static let configuration = CommandConfiguration(abstract: "Advent of Code - December 12, 2023 - Hot Springs")
-  
+@AOCDay(name: "Hot Springs")
+struct Dec122023: AdventOfCodeDay, AsyncParsableCommand {
   private typealias Cache = [Row : Int]
   
-  func run() async throws {
-    print("Part 1: \(try part1(""))")
-    print("Part 2: \(try part2(""))")
-  }
- 
   func part1(_ input: String) throws -> CustomStringConvertible {
     let rows = input
       .components(separatedBy: .newlines)

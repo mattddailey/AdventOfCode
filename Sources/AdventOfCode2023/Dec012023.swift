@@ -12,7 +12,7 @@ import Foundation
 
 @AOCDay(name: "Trebuchet?!")
 struct Dec012023: AdventOfCodeDay, AsyncParsableCommand {
-  func part1(_ input: String) -> CustomStringConvertible {
+  func part1(_ input: String) throws -> CustomStringConvertible {
     input
       .filter { $0.isWholeNumber || $0.isNewline }
       .components(separatedBy: .newlines)
@@ -20,7 +20,7 @@ struct Dec012023: AdventOfCodeDay, AsyncParsableCommand {
       .reduce(0, +)
   }
   
-  func part2(_ input: String) -> CustomStringConvertible {
+  func part2(_ input: String) throws -> CustomStringConvertible {
     input
       .components(separatedBy: .newlines)
       .compactMap(calibrationValuePart2)

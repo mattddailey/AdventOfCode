@@ -12,7 +12,7 @@ import Foundation
 
 @AOCDay(name: "Cube Conundrum")
 struct Dec022023: AdventOfCodeDay, AsyncParsableCommand {
-  func part1(_ input: String) -> CustomStringConvertible {
+  func part1(_ input: String) throws -> CustomStringConvertible {
     input
       .components(separatedBy: .newlines)
       .map(createGame)
@@ -21,7 +21,7 @@ struct Dec022023: AdventOfCodeDay, AsyncParsableCommand {
       .reduce(0, +)
   }
   
-  func part2(_ input: String) -> CustomStringConvertible {
+  func part2(_ input: String) throws -> CustomStringConvertible {
     input
       .components(separatedBy: .newlines)
       .map(createGame)

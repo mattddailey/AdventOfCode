@@ -6,16 +6,11 @@
 
 import ArgumentParser
 import AdventOfCodeShared
+import AOCDay
 import Foundation
 
-struct Day08: AdventOfCodeDay, AsyncParsableCommand {
-  static let configuration = CommandConfiguration(abstract: "Advent of Code - December 08, 2023 - Haunted Wasteland")
-  
-  func run() async throws {
-    print("Part 1: \(try part1(""))")
-    print("Part 2: \(try part2(""))")
-  }
-  
+@AOCDay(name: "Haunted Wasteland")
+struct Dec082023: AdventOfCodeDay, AsyncParsableCommand {
   func part1(_ input: String) throws -> CustomStringConvertible {
     try processInstructions(createInstructions(input), for: createNodes(input), startingAt: "AAA", part2: false)
   }
