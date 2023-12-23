@@ -39,8 +39,8 @@ public struct AOCDayMacro: MemberMacro {
     mutating func run() async throws {
       let input = try await inputFor(day: \(dayModel.day), year: \(dayModel.year))
 
-      print("Part 1: \\(part1(input))")
-      print("Part 2: \\(part2(input))")
+      print("Part 1: \\(try part1(input))")
+      print("Part 2: \\(try part2(input))")
     }
     """
     

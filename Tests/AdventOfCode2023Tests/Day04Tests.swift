@@ -3,7 +3,7 @@ import XCTest
 
 final class Day04Tests: XCTestCase {
   func testDay04Part1() throws {
-    let day = Day04()
+    let day = Dec042023()
     
     XCTAssertEqual(
       day.part1(
@@ -21,7 +21,7 @@ final class Day04Tests: XCTestCase {
   }
     
   func testDay04Part2() throws {
-    let day = Day04()
+    let day = Dec042023()
     
     XCTAssertEqual(
       day.part2(
