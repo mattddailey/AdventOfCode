@@ -23,7 +23,10 @@ let package = Package(
           "AOCDay"
         ]
       ),
-      .target(name: "AdventOfCodeShared"),
+      .target(
+        name: "AdventOfCodeShared",
+        resources: [.copy("cookie.json")]
+      ),
       .target(
         name: "AOCDay",
         dependencies: ["AOCDayMacro"]

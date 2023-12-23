@@ -15,20 +15,44 @@ public protocol AdventOfCodeDay {
 public extension AdventOfCodeDay {
   func inputFor(day: Int, year: Int) async throws -> String {
     let baseURL = "https://adventofcode.com/"
-    let cookie = ""
     let urlString: String = baseURL + String(year) + "/day/" + String(day) + "/input"
     
     guard let url = URL(string: urlString) else {
         throw InputError.invalidURL
     }
     
+    let cookieFileUrl = Bundle.module.url(forResource: "cookie", withExtension: "json")
+
+    guard 
+      let cookieFileUrl = cookieFileUrl,
+      let cookieData = try? Data(contentsOf: cookieFileUrl) 
+    else {
+      throw InputError.missingCookieFile
+    }
+    
+    let cookie = try JSONDecoder().decode(Cookie.self, from: cookieData)
+    
     var urlRequest = URLRequest(url: url)
-    urlRequest.setValue(cookie, forHTTPHeaderField: "Cookie")
-    let (data, _) = try await URLSession.shared.data(for: urlRequest)
+    urlRequest.setValue(cookie.value, forHTTPHeaderField: "Cookie")
+    let (data, response) = try await URLSession.shared.data(for: urlRequest)
+    
+    guard 
+      let urlResponse = response as? HTTPURLResponse,
+      urlResponse.statusCode == 200
+    else {
+      throw InputError.invalidStatusCode
+    }
+    
     return String(decoding: data, as: UTF8.self)
   }
 }
 
+fileprivate struct Cookie: Decodable {
+  let value: String
+}
+
 fileprivate enum InputError: Error {
+  case invalidStatusCode
   case invalidURL
+  case missingCookieFile
 }
