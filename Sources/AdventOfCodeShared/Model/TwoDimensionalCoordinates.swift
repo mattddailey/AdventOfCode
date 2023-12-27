@@ -15,9 +15,35 @@ public struct TwoDimensionalCoordinates: Hashable {
     self.x = x
     self.y = y
   }
+  
+  public static func + (
+    lhs: TwoDimensionalCoordinates,
+    rhs: TwoDimensionalCoordinates
+  ) -> TwoDimensionalCoordinates {
+    .init(
+      x: lhs.x + rhs.x, 
+      y: lhs.y + rhs.y
+    )
+  }
 }
 
 public extension TwoDimensionalCoordinates {
+  func moved(
+    direction: Direction,
+    amount: Int = 1
+  ) -> TwoDimensionalCoordinates {
+    switch direction {
+    case .north:
+      return .init(x: x, y: y - amount)
+    case .south:
+      return .init(x: x, y: y + amount)
+    case .east:
+      return .init(x: x + amount, y: y)
+    case .west:
+      return .init(x: x - amount, y: y)
+    }
+  }
+  
   var perpendicularCoordinates: Set<TwoDimensionalCoordinates> {
     [
       TwoDimensionalCoordinates(x: x - 1, y: y),

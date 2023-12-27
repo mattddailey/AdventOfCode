@@ -12,118 +12,161 @@ import Foundation
 
 @AOCDay(name: "Name")
 struct Dec102023: AdventOfCodeDay, AsyncParsableCommand {
+  typealias Map = [[Character]]
+  
+  private var directions: [Character: Set<Direction>] {
+    [
+      "|": [.north, .south],
+      "-": [.east, .west],
+      "L": [.north, .east],
+      "J": [.north, .west],
+      "7": [.south, .west],
+      "F": [.south, .east]
+    ]
+  }
+  
   func part1(_ input: String) throws -> CustomStringConvertible {
-    let twoDimGrid = TwoDimensionalGrid(input)
+    let map = input.asTwoDimArray
+    let startCoordinates = startCoordinates(forMap: map)
     
-    guard let start = twoDimGrid.start else {
-      fatalError("Unable to find start in input")
-    }
-
-    let cycleLength = cycleLength(
-      twoDimGrid,
-      current: start,
-      last: start,
-      visited: []
+    let adjustedMap = mapWithStartPipeReplaced(
+      originalMap: map,
+      startCoordinates: startCoordinates
     )
     
-    return cycleLength / 2
+    guard let startingDirection = (directions[adjustedMap[startCoordinates.y][startCoordinates.x]] ?? []).first else {
+      fatalError("Unable to determine starting location")
+    }
+    
+    return determineLoop(
+      from: startCoordinates,
+      withStartingDirection: startingDirection,
+      for: adjustedMap
+    ).count / 2
   }
   
   func part2(_ input: String) throws -> CustomStringConvertible {
-    0
-  }
-
-  private func cycleLength(
-    _ twoDimGrid: TwoDimensionalGrid,
-    current: TwoDimensionalCoordinates,
-    last: TwoDimensionalCoordinates,
-    visited: Set<TwoDimensionalCoordinates>
-  ) -> Int {
-    if visited.contains(current) {
-      // cycle found
-      return visited.count
+    let map = input.asTwoDimArray
+    let startCoordinates = startCoordinates(forMap: map)
+    
+    let adjustedMap = mapWithStartPipeReplaced(
+      originalMap: map,
+      startCoordinates: startCoordinates
+    )
+    
+    guard let startingDirection = (directions[adjustedMap[startCoordinates.y][startCoordinates.x]] ?? []).first else {
+      fatalError("Unable to determine starting location")
     }
     
-    var visited = visited
-    visited.insert(current)
+    let loop = determineLoop(
+      from: startCoordinates,
+      withStartingDirection: startingDirection,
+      for: adjustedMap
+    )
     
-    let neighbors = neighbors(of: current, in: twoDimGrid)
-    var maxCycleLength = 0
-    
-    for neighbor in neighbors where neighbor != last {
-      let cycleLength = cycleLength(
-        twoDimGrid,
-        current: neighbor,
-        last: current,
-        visited: visited
-      )
-      
-      maxCycleLength = max(maxCycleLength, cycleLength)
-    }
-    
-    return maxCycleLength 
+    return enclosedPoints(
+      by: loop,
+      in: adjustedMap
+    )
   }
   
-  private func neighbors(
-    of current: TwoDimensionalCoordinates,
-    in twoDimGrid: TwoDimensionalGrid
-  ) -> Set<TwoDimensionalCoordinates> {
-    var neighbors: Set<TwoDimensionalCoordinates> = []
+  private func enclosedPoints(
+    by loop: Set<TwoDimensionalCoordinates>,
+    in map: Map
+  ) -> Int {
+    var count = 0
     
-    switch twoDimGrid.value[current.y][current.x] {
-    case "S":
-      neighbors = current.perpendicularCoordinates
-    case "|":
-      neighbors = [
-        TwoDimensionalCoordinates(x: current.x, y: current.y - 1),
-        TwoDimensionalCoordinates(x: current.x, y: current.y + 1)
-      ]
-    case "-":
-      neighbors = [
-        TwoDimensionalCoordinates(x: current.x - 1, y: current.y),
-        TwoDimensionalCoordinates(x: current.x + 1, y: current.y)
-      ]
-    case "L":
-      neighbors = [
-        TwoDimensionalCoordinates(x: current.x + 1, y: current.y),
-        TwoDimensionalCoordinates(x: current.x, y: current.y - 1)
-      ]
-    case "J":
-      neighbors = [
-        TwoDimensionalCoordinates(x: current.x - 1, y: current.y),
-        TwoDimensionalCoordinates(x: current.x, y: current.y - 1)
-      ]
-    case "7":
-      neighbors = [
-        TwoDimensionalCoordinates(x: current.x - 1, y: current.y),
-        TwoDimensionalCoordinates(x: current.x, y: current.y + 1)
-      ]
-    case "F":
-      neighbors = [
-        TwoDimensionalCoordinates(x: current.x + 1, y: current.y),
-        TwoDimensionalCoordinates(x: current.x, y: current.y + 1)
-      ]
-    default:
-      break
+    for (y, row) in map.enumerated() {
+      var edgeCount = 0
+      for (x, _) in row.enumerated() {
+        if 
+          loop.contains(.init(x: x, y: y))
+        {
+          if "|JL".contains(map[y][x]) {
+            // point is IN loop; increment edgeCount, only for pipes that go north
+            edgeCount += 1
+          }
+        } else if edgeCount % 2 != 0 {
+          // even odd theory
+          count += 1
+        }
+      }
     }
     
-    return neighbors
-      .filter { twoDimGrid.contains(coordinates: $0) }
-      .filter { twoDimGrid.value[$0.y][$0.x] != "." }
+    return count
   }
-}
+  
+  private func startCoordinates(forMap map: Map) -> TwoDimensionalCoordinates {
+    for (y, row) in map.enumerated() {
+      for (x, char) in row.enumerated() {
+        if char == "S" {
+          return TwoDimensionalCoordinates(x: x, y: y)
+        }
+      }
+    }
+    
+    fatalError("Did not find S in map")
+  }
+  
+  private func mapWithStartPipeReplaced(
+    originalMap map: Map,
+    startCoordinates: TwoDimensionalCoordinates
+  ) -> Map {
+    var map = map
+    
+    let startDirections = Direction.allCases
+      .filter { move in
+        let nextCoordinates = startCoordinates + move.offset
+        
+        guard nextCoordinates.x >= 0, nextCoordinates.y >= 0 else {
+          return false
+        }
+        
+        let nextValue = map[nextCoordinates.y][nextCoordinates.x]
+        
+        return (directions[nextValue] ?? [])
+          .map { $0.opposite }
+          .contains { $0 == move }
+      }
+    
+    if let startPipe = directions.first(where: { $0.value == Set(startDirections) }) {
+      map[startCoordinates.y][startCoordinates.x] = startPipe.key
+    }
 
-fileprivate extension TwoDimensionalGrid {
-  var start: TwoDimensionalCoordinates? {
-    guard let y = value.firstIndex(where: { !$0.filter({ $0 == "S" }).isEmpty }) else {
-      return nil
+    return map
+  }
+  
+  private func nextDirection(
+    for character: Character,
+    fromDirection lastDirection: Direction
+  ) -> Direction {
+    switch character {
+    case "|":
+      return lastDirection == .south ? .north : .south
+    default:
+      fatalError("Encountered unexpected characeter while trying to determine next direction")
     }
+  }
+  
+  private func determineLoop(
+    from startCoordinates: TwoDimensionalCoordinates,
+    withStartingDirection startingDirection: Direction,
+    for map: Map
+  ) -> Set<TwoDimensionalCoordinates> {
+    var current = startCoordinates
+    var direction = startingDirection
+    var loop = Set<TwoDimensionalCoordinates>()
     
-    guard let x = value[y].firstIndex(where: { $0 == "S" }) else {
-      return nil
-    }
+    repeat {
+      loop.insert(current)
+      current = current.moved(direction: direction)
+      direction = directions[map[current.y][current.x]]!
+        .symmetricDifference([direction.opposite])
+        .first!
+    } while current != startCoordinates
     
-    return TwoDimensionalCoordinates(x: x, y: y)
+    
+    return loop
   }
 }
   

@@ -4,11 +4,11 @@ import XCTest
 final class Dec10Tests: XCTestCase {
   static let inputPart1 =
   """
-  .|...
-  FS-7.
-  .|.|.
-  .L-J.
-  .....
+  ..F7.
+  .FJ|.
+  SJ.L7
+  |F--J
+  LJ...
   """
   
   static let inputPart2 =
@@ -32,6 +32,6 @@ final class Dec10Tests: XCTestCase {
     
   func testDec10Part2() throws {
     let day =  Dec102023()
-    XCTAssertEqual(try day.part2(Self.inputPart2) as? Int, 0)
+    XCTAssertEqual(try day.part2(Self.inputPart2) as? Int, 8)
   }
 }
