@@ -18,15 +18,25 @@ public struct TwoDimensionalCoordinates: Hashable {
 }
 
 public extension TwoDimensionalCoordinates {
+  var perpendicularCoordinates: Set<TwoDimensionalCoordinates> {
+    [
+      TwoDimensionalCoordinates(x: x - 1, y: y),
+      TwoDimensionalCoordinates(x: x + 1, y: y),
+      TwoDimensionalCoordinates(x: x, y: y - 1),
+      TwoDimensionalCoordinates(x: x, y: y + 1),
+    ]
+  }
+  
+  var diagonalCoordinates: Set<TwoDimensionalCoordinates> {
+    [
+      TwoDimensionalCoordinates(x: x - 1, y: y - 1),
+      TwoDimensionalCoordinates(x: x + 1, y: y + 1),
+      TwoDimensionalCoordinates(x: x - 1, y: y + 1),
+      TwoDimensionalCoordinates(x: x + 1, y: y - 1),
+    ]
+  }
+  
   var surroundingCoordinates: Set<TwoDimensionalCoordinates> {
-    var surroundingCoordinates = Set<TwoDimensionalCoordinates>()
-    
-    for y in (self.y - 1)...(self.y + 1) {
-      for x in (self.x - 1)...(self.x + 1) {
-        surroundingCoordinates.insert(TwoDimensionalCoordinates(x: x, y: y))
-      }
-    }
-    
-    return surroundingCoordinates
+    perpendicularCoordinates.union(diagonalCoordinates)
   }
 }

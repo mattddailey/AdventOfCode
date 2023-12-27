@@ -42,8 +42,15 @@ let package = Package(
           ]
       ),
       .testTarget(
-        name: "AdventOfCodeTests2023",
+        name: "AdventOfCode2023Tests",
         dependencies: ["AdventOfCode2023"]
+      ),
+      .testTarget(
+          name: "AOCDayMacroTests",
+          dependencies: [
+              "AOCDayMacro",
+              .product(name: "SwiftSyntaxMacrosTestSupport", package: "swift-syntax"),
+          ]
       ),
     ]
 )
