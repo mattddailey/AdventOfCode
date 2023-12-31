@@ -25,6 +25,7 @@ struct AdventOfCode2023: AsyncParsableCommand {
       Dec102023.self,
       Dec112023.self,
       Dec122023.self,
+      Dec132023.self,
       Dec142023.self
     ]
   )
